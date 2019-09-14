@@ -30,28 +30,12 @@ app.get('/api', (req, res) => {
 
 app.post('/api/pods', async (req, res) => {
   const name = (req.body || {}).name;
-
-  if (!!name) {
-    pods.createPod(name).then(pod => {
-      res.send({
-        message: `Added new pod ${name}`,
-        pod: pod || 'none'
-      });
-    });
-  } else {
-    res.status(400).send({
-      message: `Failed to add pod ${name}`
-    });
-  }
+  pods.createPod(res, name);
 });
 
 app.get('/api/pods', async (req, res) => {
-  pods.getPods().then(pods => {
-    res.send({
-      message: `Got Pods!`,
-      pods: pods || 'none'
-    });
-  });
+  const { pageNum, pageSize } = req.query;
+  pods.getPods(res, pageNum, pageSize);
 });
 
 app.listen(port, () => log.info(`Listening on port ${port}`));
