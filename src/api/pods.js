@@ -9,9 +9,8 @@ exports.createPod = async (res, name) => {
     res.status(400).send({
       message: `Missing name ${name}`
     }); 
+    return;
   }
-
-  console.log(`Does this get hit?`);
 
   const collection = data.db.collection(PODS_COLLECTION);
   const pod = { name: name };
@@ -29,7 +28,8 @@ exports.createPod = async (res, name) => {
       res.status(500).send({
         message: `Failed to create pod ${name}`,
         error: err
-      }); 
+      });
+      return;
     }
   });
 
