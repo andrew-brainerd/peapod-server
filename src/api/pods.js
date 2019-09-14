@@ -17,11 +17,8 @@ exports.createPod = async (res, name) => {
 
   const newPod = collection.insertOne(pod, (err, result) => {
     if (!err) {
-      log.cool(`Created new pod ${name}`);
-      res.send({
-        message: `Created new pod ${name}`,
-        pod
-      });
+      log.success(`Created new pod ${name}`);
+      res.send({ ...pod });
     }
     else {
       log.error(err);
