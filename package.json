@@ -1,0 +1,18 @@
+{
+  "name": "peapod-server",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.3",
+    "mongodb": "^3.1.12"
+  },
+  "devDependencies": {
+    "concurrently": "^3.5.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "yarn && nodemon server.js"
+  }
+}
