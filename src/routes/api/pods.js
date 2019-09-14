@@ -1,6 +1,6 @@
-const data = require('../utils/db');
-const log = require('../utils/log');
-const { PODS_COLLECTION } = require('../constants/collections');
+const data = require('../../utils/db');
+const log = require('../../utils/log');
+const { PODS_COLLECTION } = require('../../constants/collections');
 
 exports.createPod = async (res, name) => {
   log.info(`Create Pod: ${name}`);
@@ -13,7 +13,12 @@ exports.createPod = async (res, name) => {
   }
 
   const collection = data.db.collection(PODS_COLLECTION);
-  const pod = { name: name };
+  const pod = {
+    name: name,
+    users: [
+      'admin'
+    ]
+  }
 
   const newPod = collection.insertOne(pod, (err, result) => {
     if (!err) {
