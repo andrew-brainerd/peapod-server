@@ -2,16 +2,18 @@ const jwt = require('express-jwt');
 const crypto = require('crypto');
 const webtoken = require('jsonwebtoken');
 
-const setPassword = password => {
+const derivePasswordBasedKey = (password, salt) => crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('hex');
+
+const encryptPassword = password => {
   const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('hex');
-  console.log(`Set Password`); //salt, hash);
-  // push to Mongp
+  const hash = derivePasswordBasedKey(password, salt);
+  return { hash, salt };
 }
 
 const validateLogin = (user, password) => {
-  const hash = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('hex');
-  return user && user.hash === hash;
+  const { hash, salt } = user;
+  const passWordHash = derivePasswordBasedKey(password, salt);
+  return hash === passWordHash;
 }
 
 const generateJWT = user => {
@@ -28,11 +30,9 @@ const generateJWT = user => {
 
 const toAuthJSON = user => {
   return {
-    user: {
-      _id: user._id,
-      email: user.email,
-      token: generateJWT(user)
-    }
+    _id: user._id,
+    email: user.email,
+    token: generateJWT(user)
   };
 }
 
@@ -61,6 +61,7 @@ const auth = {
 
 module.exports = {
   auth,
-  setPassword,
-  toAuthJSON
+  encryptPassword,
+  toAuthJSON,
+  validateLogin
 }

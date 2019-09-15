@@ -1,7 +1,7 @@
 const passport = require('passport');
 const usersRouter = require('express').Router();
 const log = require('../../utils/log');
-const { auth, setPassword, toAuthJSON } = require('../../utils/auth');
+const { auth, toAuthJSON } = require('../../utils/auth');
 const usersData = require('../../data/users');
 
 usersRouter.post('/', auth.optional, async (req, res, next) => {
