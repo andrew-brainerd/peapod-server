@@ -1,14 +1,15 @@
+const pods = require('express').Router();
 const data = require('../../utils/db');
 const log = require('../../utils/log');
 const { PODS_COLLECTION } = require('../../constants/collections');
 
-exports.createPod = async (res, name) => {
-  log.info(`Create Pod: ${name}`);
+pods.post('/', async (req, res) => {
+  const name = (req.body || {}).name;
 
   if (!name) {
     res.status(400).send({
       message: `Missing name ${name}`
-    }); 
+    });
     return;
   }
 
@@ -36,12 +37,13 @@ exports.createPod = async (res, name) => {
   });
 
   return newPod;
-}
+});
 
-exports.getPods = async (res, page = 1, size = 0) => {
+pods.get('/', async (req, res) => {
   log.info(`Get Pods`);
-  const pageNum = parseInt(page);
-  const pageSize = parseInt(size);
+  const { pageNum, pageSize } = req.query;
+  const page = parseInt(pageNum) || 1;
+  const size = parseInt(pageSize) || 0;
 
   const collection = data.db.collection(PODS_COLLECTION);
 
@@ -49,8 +51,8 @@ exports.getPods = async (res, page = 1, size = 0) => {
   const totalPages = data.calculateTotalPages(totalItems, pageSize);
 
   const results = collection.find({})
-    .skip(pageSize * (pageNum - 1))
-    .limit(pageSize)
+    .skip(size * (page - 1))
+    .limit(size)
     .sort({ $natural: -1 });
 
   return await results.toArray((err, items) => {
@@ -63,4 +65,6 @@ exports.getPods = async (res, page = 1, size = 0) => {
       totalPages
     });
   });
-}
+});
+
+module.exports = pods;

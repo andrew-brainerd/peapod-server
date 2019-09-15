@@ -1,8 +1,21 @@
-const express = require('express');
-const router = express.Router();
-const { PODS_ROUTE, USERS_ROUTE } = require('../../constants/routes');
+const router = require('express').Router();
+const version = process.env.API_VERSION;
 
-router.use(PODS_ROUTE, require('./pods'));
-router.use(USERS_ROUTE, require('./users'));
+// passport.authenticate('local'),
+
+router.post('/', (req, res) => {
+  res.send({
+    message: `Welcome to the Peapod API v${version}!`
+  });
+});
+
+router.get('/', (req, res) => {
+  res.send({
+    message: `Welcome to the Peapod API v${version}!`
+  });
+});
+
+router.use('/pods', require('./pods'));
+router.use('/users', require('./users'));
 
 module.exports = router;

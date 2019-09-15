@@ -1,25 +1,26 @@
 require('dotenv').config();
 const express = require('express');
-const path = require('path');
 const session = require("express-session");
 const passport = require('passport');
+const errorHandler = require('errorhandler');
 const log = require('./utils/log');
-
-const app = express();
 
 const isProduction = process.env.NODE_ENV === 'production';
 const port = process.env.PORT || 5000;
-const version = process.env.API_VERSION;
 
-const { ROOT_ROUTE, PODS_ROUTE } = require('./constants/routes');
-const pods = require('./routes/api/pods');
+const app = express();
 
 app.use(express.json());
 app.use(session({
+  cookie: { maxAge: 60000 },
   resave: false,
   saveUninitialized: false,
   secret: 'peas'
 }));
+
+if(!isProduction) {
+  app.use(errorHandler());
+}
 
 require('./config/passport');
 app.use(passport.initialize());
@@ -32,26 +33,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post(ROOT_ROUTE, passport.authenticate('local'), (req, res) => {
-  res.send({
-    message: `Welcome to the Peapod API ${version}!`
-  });
-});
-
-app.get(ROOT_ROUTE, (req, res) => {
-  res.send({
-    message: `Welcome to the Peapod API ${version}!`
-  });
-});
-
-app.post(PODS_ROUTE, async (req, res) => {
-  const name = (req.body || {}).name;
-  pods.createPod(res, name);
-});
-
-app.get(PODS_ROUTE, async (req, res) => {
-  const { pageNum, pageSize } = req.query;
-  pods.getPods(res, pageNum, pageSize);
-});
+app.use('/', require('./routes'));
 
 app.listen(port, () => log.info(`Listening on port ${port}`));
