@@ -15,8 +15,6 @@ const validateLogin = (user, password) => {
 }
 
 const generateJWT = user => {
-  // console.log(`generateJWT: %o`, user);
-  if (!user) return { error: 'Invalid auth user' };
   const today = new Date();
   const expirationDate = new Date(today);
   expirationDate.setDate(today.getDate() + 60);
@@ -29,8 +27,6 @@ const generateJWT = user => {
 }
 
 const toAuthJSON = user => {
-  console.log(`toAuthJSON: %o`, user);
-  if (!user) return { error: 'Invalid auth user' };
   return {
     user: {
       _id: user._id,

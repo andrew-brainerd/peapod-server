@@ -1,5 +1,5 @@
 const pods = require('express').Router();
-const data = require('../../utils/db');
+const data = require('../../utils/data');
 const log = require('../../utils/log');
 const { PODS_COLLECTION } = require('../../constants/collections');
 
@@ -54,7 +54,7 @@ pods.get('/', async (req, res) => {
     .limit(size)
     .sort({ $natural: -1 });
 
-  return await results.toArray((err, items) => {
+  return results.toArray((err, items) => {
     if (err) throw err;
     res.send({
       items,

@@ -1,59 +1,50 @@
 const passport = require('passport');
-const users = require('express').Router();
-const { auth, setPassword, toAuthJSON } = require('../../utils/auth');
-const data = require('../../utils/db');
+const usersRouter = require('express').Router();
 const log = require('../../utils/log');
-const { USERS_COLLECTION } = require('../../constants/collections');
+const { auth, setPassword, toAuthJSON } = require('../../utils/auth');
+const usersData = require('../../data/users');
 
-const getUserByEmail = email => {
-  const user = {
-    '_id': '012345',
-    'email': 'none',
-    'password': 'none'
-  }
-  return user;
-}
-
-users.post('/', auth.optional, (req, res, next) => {
+usersRouter.post('/', auth.optional, async (req, res, next) => {
   const { body: { user } } = req;
 
   if (!user) {
     return res.status(400).send({
-      message: `Missing required param: [user]`
+      error: `Missing required param: [user]`
     });
   }
 
-  console.log(`Users: POST /`);
+  const { email, password } = user;
 
-  if (!user.email) {
+  if (!email) {
     return res.status(400).send({
-      message: `Missing required param: [user.email]`
+      error: `Missing required param: [user.email]`
     });
   }
 
-  if (!user.password) {
+  if (!password) {
     return res.status(400).send({
-      message: `Missing required param: [user.password]`
+      error: `Missing required param: [user.password]`
     });
   }
 
-  const collection = data.db.collection(USERS_COLLECTION);
-  collection.insertOne(user, (err, result) => {
-    if (!err) {
-      const { _id, email } = result.ops[0];
-      log.success(`Created new user ${email}`);
-      return res.send(toAuthJSON({ _id, email }));
-    }
-  });
+  const existingUser = await usersData.getUserByEmail(email);
+  if (existingUser) {
+    return res.status(400).send({
+      error: `User with email ${email} already exists`
+    });
+  }
+
+  const newUser = await usersData.createUser(user);
+  return res.send(toAuthJSON(newUser));
 });
 
-users.post('/login', auth.optional, (req, res, next) => {
+usersRouter.post('/login', auth.optional, (req, res, next) => {
   const { body: { user } } = req;
 
   console.log(`/login`, { req, res });
 
   if (!user.email) {
-    return res.status(422).json({
+    return res.status(400).send({
       errors: {
         email: 'is required',
       },
@@ -61,7 +52,7 @@ users.post('/login', auth.optional, (req, res, next) => {
   }
 
   if (!user.password) {
-    return res.status(422).json({
+    return res.status(400).send({
       errors: {
         password: 'is required',
       },
@@ -87,7 +78,7 @@ users.post('/login', auth.optional, (req, res, next) => {
   })(req, res, next);
 });
 
-users.get('/current', auth.required, (req, res, next) => {
+usersRouter.get('/current', auth.required, (req, res, next) => {
   const { payload: { id } } = req;
 
   return Users.findById(id)
@@ -100,4 +91,4 @@ users.get('/current', auth.required, (req, res, next) => {
     });
 });
 
-module.exports = users;
+module.exports = usersRouter;
