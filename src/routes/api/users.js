@@ -5,59 +5,29 @@ const { auth, setPassword, toAuthJSON } = require('../../utils/auth');
 const usersData = require('../../data/users');
 
 usersRouter.post('/', auth.optional, async (req, res, next) => {
-  const { body: { user } } = req;
+  const { body: { email, password } } = req;
 
-  if (!user) {
-    return res.status(400).send({
-      error: `Missing required param: [user]`
-    });
-  }
-
-  const { email, password } = user;
-
-  if (!email) {
-    return res.status(400).send({
-      error: `Missing required param: [user.email]`
-    });
-  }
-
-  if (!password) {
-    return res.status(400).send({
-      error: `Missing required param: [user.password]`
-    });
-  }
+  if (!email) return res.sendMissingParam('email');
+  if (!password) return res.sendMissingParam('password');
 
   const existingUser = await usersData.getUserByEmail(email);
   if (existingUser) {
-    return res.status(400).send({
-      error: `User with email ${email} already exists`
+    return res.sendAlreadyExists({
+      entity: 'User',
+      property: 'email',
+      value: email
     });
   }
 
-  const newUser = await usersData.createUser(user);
+  const newUser = await usersData.createUser({ email, password });
   return res.send(toAuthJSON(newUser));
 });
 
 usersRouter.post('/login', auth.optional, (req, res, next) => {
-  const { body: { user } } = req;
+  const { body: { email, password } } = req;
 
-  console.log(`/login`, { req, res });
-
-  if (!user.email) {
-    return res.status(400).send({
-      errors: {
-        email: 'is required',
-      },
-    });
-  }
-
-  if (!user.password) {
-    return res.status(400).send({
-      errors: {
-        password: 'is required',
-      },
-    });
-  }
+  if (!email) return res.sendMissingParam('email');
+  if (!password) return res.sendMissingParam('password');
 
   return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
     if (err) {
@@ -74,7 +44,7 @@ usersRouter.post('/login', auth.optional, (req, res, next) => {
       return res.json({ user: user.toAuthJSON() });
     }
 
-    return status(400).info;
+    return res.status(400).info;
   })(req, res, next);
 });
 
