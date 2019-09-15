@@ -1,45 +1,103 @@
-const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
-
-const _id = '01234';
-const email = 'drwb333@hotmail.com';
-let hash, salt;
+const passport = require('passport');
+const users = require('express').Router();
+const { auth, setPassword, toAuthJSON } = require('../../utils/auth');
+const data = require('../../utils/db');
+const log = require('../../utils/log');
+const { USERS_COLLECTION } = require('../../constants/collections');
 
 const getUserByEmail = email => {
-  const user = users.find(u => u.email === email);
-  console.log(`User:`, user);
+  const user = {
+    '_id': '012345',
+    'email': 'none',
+    'password': 'none'
+  }
   return user;
 }
 
-const setPassword = password => {
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('hex');
+users.post('/', auth.optional, (req, res, next) => {
+  const { body: { user } } = req;
 
-  // push to Mongo
+  if (!user) {
+    return res.status(400).send({
+      message: `Missing required param: [user]`
+    });
+  }
 
-}
+  console.log(`Users: POST /`);
 
-const validateLogin = (user, password) => {
-  const hash = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('hex');
-  return user && user.hash === hash;
-}
+  if (!user.email) {
+    return res.status(400).send({
+      message: `Missing required param: [user.email]`
+    });
+  }
 
-const generateJWT = () => {
-  const today = new Date();
-  const expirationDate = new Date(today);
-  expirationDate.setDate(today.getDate() + 60);
+  if (!user.password) {
+    return res.status(400).send({
+      message: `Missing required param: [user.password]`
+    });
+  }
 
-  return jwt.sign({
-    email: email,
-    id: _id,
-    exp: parseInt(expirationDate.getTime() / 1000, 10),
-  }, 'secret');
-}
+  const collection = data.db.collection(USERS_COLLECTION);
+  collection.insertOne(user, (err, result) => {
+    if (!err) {
+      const { _id, email } = result.ops[0];
+      log.success(`Created new user ${email}`);
+      return res.send(toAuthJSON({ _id, email }));
+    }
+  });
+});
 
-const toAuthJSON = function() {
-  return {
-    _id: _id,
-    email: email,
-    token: generateJWT(),
-  };
-}
+users.post('/login', auth.optional, (req, res, next) => {
+  const { body: { user } } = req;
+
+  console.log(`/login`, { req, res });
+
+  if (!user.email) {
+    return res.status(422).json({
+      errors: {
+        email: 'is required',
+      },
+    });
+  }
+
+  if (!user.password) {
+    return res.status(422).json({
+      errors: {
+        password: 'is required',
+      },
+    });
+  }
+
+  return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
+    if (err) {
+      console.log(`passport.authentication error: ${err}`);
+      return next(err);
+    }
+
+    console.log(`Passport User: ${passportUser}`);
+
+    if (passportUser) {
+      const user = passportUser;
+      user.token = passportUser.generateJWT();
+
+      return res.json({ user: user.toAuthJSON() });
+    }
+
+    return status(400).info;
+  })(req, res, next);
+});
+
+users.get('/current', auth.required, (req, res, next) => {
+  const { payload: { id } } = req;
+
+  return Users.findById(id)
+    .then((user) => {
+      if (!user) {
+        return res.sendStatus(400);
+      }
+
+      return res.json({ user: user.toAuthJSON() });
+    });
+});
+
+module.exports = users;

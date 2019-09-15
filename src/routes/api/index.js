@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const passport = require('passport');
 const version = process.env.API_VERSION;
 
 // passport.authenticate('local'),

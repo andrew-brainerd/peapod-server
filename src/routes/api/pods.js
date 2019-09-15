@@ -7,10 +7,9 @@ pods.post('/', async (req, res) => {
   const name = (req.body || {}).name;
 
   if (!name) {
-    res.status(400).send({
-      message: `Missing name ${name}`
+    return res.status(400).send({
+      message: `Missing required param: [name]`
     });
-    return;
   }
 
   const collection = data.db.collection(PODS_COLLECTION);
