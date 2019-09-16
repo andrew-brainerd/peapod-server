@@ -45,7 +45,7 @@ const getTokenFromHeaders = (req) => {
   return null;
 };
 
-const auth = {
+const authConfig = {
   required: jwt({
     secret: 'secret',
     userProperty: 'payload',
@@ -59,8 +59,11 @@ const auth = {
   }),
 }
 
+const authOpts = { session: false };
+
 module.exports = {
-  auth,
+  authOpts,
+  authConfig,
   encryptPassword,
   toAuthJSON,
   validateLogin

@@ -12,11 +12,9 @@ passport.use(new LocalStrategy(loginFields,
   (email, password, done) => {
     usersData.getUserByEmail(email)
       .then(user => {
-        console.log(`Got User: %o`, { _id: user._id, email: user.email });
         if (!user || !auth.validateLogin(user, password)) {
           return done(null, false, { error: 'Invalid Login' });
         }
-
         return done(null, user);
       }).catch(done);
   }));

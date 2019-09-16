@@ -1,8 +1,7 @@
 const router = require('express').Router();
 const passport = require('passport');
+const { authOpts } = require('../../utils/auth');
 const version = process.env.API_VERSION;
-
-const authOpts = { session: false };
 
 router.post('/', passport.authenticate('local', authOpts), (req, res) => {
   res.send({

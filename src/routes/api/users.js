@@ -1,10 +1,10 @@
 const passport = require('passport');
 const usersRouter = require('express').Router();
 const log = require('../../utils/log');
-const { auth, toAuthJSON } = require('../../utils/auth');
+const { authOpts, authConfig, toAuthJSON } = require('../../utils/auth');
 const usersData = require('../../data/users');
 
-usersRouter.post('/', auth.optional, async (req, res, next) => {
+usersRouter.post('/', authConfig.optional, async (req, res, next) => {
   const { body: { email, password } } = req;
 
   if (!email) return res.sendMissingParam('email');
@@ -23,13 +23,13 @@ usersRouter.post('/', auth.optional, async (req, res, next) => {
   return res.send(toAuthJSON(newUser));
 });
 
-usersRouter.post('/login', auth.optional, (req, res, next) => {
+usersRouter.post('/login', authConfig.optional, (req, res, next) => {
   const { body: { email, password } } = req;
 
   if (!email) return res.sendMissingParam('email');
   if (!password) return res.sendMissingParam('password');
 
-  return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
+  return passport.authenticate('local', authOpts, (err, passportUser, info) => {
     if (err) {
       log.error(`Passport Authentication Errror: ${err}`);
       return next(err);
