@@ -2,9 +2,9 @@ const router = require('express').Router();
 const passport = require('passport');
 const version = process.env.API_VERSION;
 
-// passport.authenticate('local'),
+const authOpts = { session: false };
 
-router.post('/', (req, res) => {
+router.post('/', passport.authenticate('local', authOpts), (req, res) => {
   res.send({
     message: `Welcome to the Peapod API v${version}!`
   });

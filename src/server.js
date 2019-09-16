@@ -38,7 +38,7 @@ app.use((req, res, next) => {
     res.status(400).send({
       error: `Missing required param: [${param}]`
     });
-  res.sendAlreadyExists = ({ entity, property, value }) =>
+  res.sendAlreadyExists = ({ entity = 'Entity', property = 'property', value = 'value' }) =>
     res.status(400).send({
       error: `${entity} with ${property} [${value}] already exists`
     });

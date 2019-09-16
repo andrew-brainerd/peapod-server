@@ -31,11 +31,9 @@ usersRouter.post('/login', auth.optional, (req, res, next) => {
 
   return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
     if (err) {
-      console.log(`passport.authentication error: ${err}`);
+      log.error(`Passport Authentication Errror: ${err}`);
       return next(err);
     }
-
-    console.log(`Passport User: ${passportUser}`);
 
     if (passportUser) {
       const user = passportUser;
@@ -44,7 +42,7 @@ usersRouter.post('/login', auth.optional, (req, res, next) => {
       return res.json({ user: user.toAuthJSON() });
     }
 
-    return res.status(400).info;
+    return res.status(400).send({ info });
   })(req, res, next);
 });
 
