@@ -1,19 +1,24 @@
-const data = require('../utils/db');
-const log = require('../utils/log');
-const { PODS_COLLECTION } = require('../constants/collections');
+const pods = require('express').Router();
+const data = require('../../utils/data');
+const log = require('../../utils/log');
+const { PODS_COLLECTION } = require('../../constants/collections');
 
-exports.createPod = async (res, name) => {
-  log.info(`Create Pod: ${name}`);
+pods.post('/', async (req, res) => {
+  const name = (req.body || {}).name;
 
   if (!name) {
-    res.status(400).send({
-      message: `Missing name ${name}`
-    }); 
-    return;
+    return res.status(400).send({
+      message: `Missing required param: [name]`
+    });
   }
 
   const collection = data.db.collection(PODS_COLLECTION);
-  const pod = { name: name };
+  const pod = {
+    name: name,
+    users: [
+      'admin'
+    ]
+  }
 
   const newPod = collection.insertOne(pod, (err, result) => {
     if (!err) {
@@ -31,12 +36,13 @@ exports.createPod = async (res, name) => {
   });
 
   return newPod;
-}
+});
 
-exports.getPods = async (res, page = 1, size = 0) => {
+pods.get('/', async (req, res) => {
   log.info(`Get Pods`);
-  const pageNum = parseInt(page);
-  const pageSize = parseInt(size);
+  const { pageNum, pageSize } = req.query;
+  const page = parseInt(pageNum) || 1;
+  const size = parseInt(pageSize) || 0;
 
   const collection = data.db.collection(PODS_COLLECTION);
 
@@ -44,11 +50,11 @@ exports.getPods = async (res, page = 1, size = 0) => {
   const totalPages = data.calculateTotalPages(totalItems, pageSize);
 
   const results = collection.find({})
-    .skip(pageSize * (pageNum - 1))
-    .limit(pageSize)
+    .skip(size * (page - 1))
+    .limit(size)
     .sort({ $natural: -1 });
 
-  return await results.toArray((err, items) => {
+  return results.toArray((err, items) => {
     if (err) throw err;
     res.send({
       items,
@@ -58,4 +64,6 @@ exports.getPods = async (res, page = 1, size = 0) => {
       totalPages
     });
   });
-}
+});
+
+module.exports = pods;
