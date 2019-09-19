@@ -65,6 +65,7 @@ module.exports = {
   authOpts,
   authConfig,
   encryptPassword,
+  generateJWT,
   toAuthJSON,
   validateLogin
 }
