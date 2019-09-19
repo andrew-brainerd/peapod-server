@@ -1,6 +1,6 @@
 # Peapod Server
 
-![Peapod Logo](./assets/logo/apple-icon-76x76.png)
+![Peapod Logo](./assets/appLogo.png)
 
 For Friends and Partners\
 :couple:
