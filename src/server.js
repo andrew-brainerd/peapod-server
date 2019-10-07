@@ -23,7 +23,7 @@ const jwtCheck = jwt({
   algorithms: ['RS256']
 });
 
-app.use(jwtCheck);
+// app.use(jwtCheck);
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
