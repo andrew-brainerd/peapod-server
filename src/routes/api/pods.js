@@ -15,8 +15,10 @@ pods.post('/', async (req, res) => {
   const collection = data.db.collection(PODS_COLLECTION);
   const pod = {
     name: name,
-    users: [
-      'admin'
+    members: [
+      {
+        name: 'admin'
+      }
     ]
   }
 
