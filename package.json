@@ -7,6 +7,7 @@
   },
   "private": true,
   "dependencies": {
+    "@signalwire/node": "^2.2.0",
     "chalk": "^2.4.2",
     "dotenv": "^6.2.0",
     "errorhandler": "^1.5.1",
