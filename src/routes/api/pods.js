@@ -2,6 +2,7 @@ const pods = require('express').Router();
 const ObjectId  = require('mongodb').ObjectId ;
 const data = require('../../utils/data');
 const log = require('../../utils/log');
+const messaging = require('../../utils/messaging');
 const { PODS_COLLECTION } = require('../../constants/collections');
 
 pods.post('/', async (req, res) => {
@@ -26,6 +27,7 @@ pods.post('/', async (req, res) => {
   const newPod = collection.insertOne(pod, (err, result) => {
     if (!err) {
       log.success(`Created new pod ${name}`);
+      messaging.sendSms(`Created new pod ${name}`);
       res.send({ ...pod });
     }
     else {
