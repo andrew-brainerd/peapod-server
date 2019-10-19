@@ -1,9 +1,6 @@
 const pods = require('express').Router();
 const podsData = require('../../data/pods');
-const ObjectId = require('mongodb').ObjectId;
-const data = require('../../utils/data');
 const status = require('../../constants/statusMessages');
-const { PODS_COLLECTION } = require('../../constants/collections');
 
 pods.post('/', async (req, res) => {
   const { body: { name } } = req;
@@ -69,7 +66,7 @@ pods.patch('/:podId/members', async (req, res) => {
   });
 });
 
-pods.patch('/:podId/members', async (req, res) => {
+pods.delete('/:podId/members', async (req, res) => {
   const { params: { podId }, body: { user } } = req;
 
   if (!podId) return status.missingQueryParam(res, 'podId');
