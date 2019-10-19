@@ -2,7 +2,7 @@ const { SUCCESS, CREATED, BAD_REQUEST, CONFLICT, SERVER_ERROR } = require('./res
 
 const success = (res, body) => res.status(SUCCESS).send(body);
 
-const created = (res, body) => res.status(SUCCESS).send(body);
+const created = (res, body) => res.status(CREATED).send(body);
 
 const missingQueryParam = (res, param) =>
   res.status(BAD_REQUEST).send({ message: `Missing query param: [${param}]` });
@@ -10,16 +10,19 @@ const missingQueryParam = (res, param) =>
 const missingBodyParam = (res, param) =>
   res.status(BAD_REQUEST).send({ message: `Missing body param: [${param}]` });
 
-const entityAlreadyExists = (res, type, property, value) =>
-  res.status(CONFLICT).send({ message: `${type} with ${property} [${value}] already exists` });
+const alreadyExists = (res, type, property, value, container) =>
+  res.status(CONFLICT).send({
+    message: `${type} with ${property} [${value}] already exists${container ? ` in ${container}` : ''}` 
+  });
 
 const serverError = (res, error, message) =>
   res.status(SERVER_ERROR).send({ message: `${type} with ${property} [${value}] already exists` });
 
 module.exports = {
   success,
+  created,
   missingQueryParam,
   missingBodyParam,
-  entityAlreadyExists,
+  alreadyExists,
   serverError
 };
