@@ -17,8 +17,10 @@ const missingQueryParam = (res, param) =>
 const missingBodyParam = (res, param) =>
   res.status(BAD_REQUEST).send({ message: `Missing body param: [${param}]` });
 
-const doesNotExist = (res, type, property) =>
-  res.status(DOES_NOT_EXIST).send({ message: `${type} [${property}] does not exist` });
+const doesNotExist = (res, type, property, container) =>
+  res.status(DOES_NOT_EXIST).send({
+    message: `${type} [${property}] does not exist${container ? ` in ${container}` : ''}`
+  });
 
 const alreadyExists = (res, type, property, value, container) =>
   res.status(CONFLICT).send({

@@ -69,17 +69,14 @@ pods.patch('/:podId/members', async (req, res) => {
   });
 });
 
-pods.delete('/:podId/members', async (req, res) => {
+pods.patch('/:podId/members', async (req, res) => {
   const { params: { podId }, body: { user } } = req;
 
   if (!podId) return status.missingQueryParam(res, 'podId');
   if (!user) return status.missingBodyParam(res, 'user');
 
-  const collection = data.db.collection(PODS_COLLECTION);
-  const updatedPod = collection.updateOne(
-    { _id: ObjectId(podId) },
-    { $pull: { members: user } }
-  );
+  const { notAMember } = await podsData.removeMember(podId, 'ballz');
+  if (!!notAMember) return status.doesNotExist(res, 'Member', user.name, `pod [${podId}]`);
 
   return status.success(res, {
     message: `Removed member ${user.name} from pod ${podId}`

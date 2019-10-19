@@ -82,6 +82,23 @@ const addMember = (podId, user) => {
   });
 };
 
+const removeMember = (podId, user) => {
+  return new Promise(async (resolve, reject) => {
+    const { name } = await getPod(podId);
+    data.db.collection(PODS_COLLECTION)
+      .updateOne(
+        { _id: ObjectId(podId) },
+        { $pull: { members: user } },
+        (err, { matchedCount, modifiedCount }) => {
+          if (err) reject(err);
+          const notAMember = matchedCount === 1 && modifiedCount === 0;
+          console.log(`matched : ${matchedCount} | modified: ${modifiedCount}`);
+          resolve({ notAMember });
+        }
+      );
+  });
+};
+
 const addCategory = (podId, category) => {
   return new Promise(async (resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
@@ -104,5 +121,6 @@ module.exports = {
   updatePod,
   deletePod,
   addMember,
+  removeMember,
   addCategory
 };
