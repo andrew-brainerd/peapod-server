@@ -1,4 +1,11 @@
-const { SUCCESS, CREATED, BAD_REQUEST, CONFLICT, SERVER_ERROR } = require('./responseCodes');
+const {
+  SUCCESS,
+  CREATED,
+  BAD_REQUEST,
+  DOES_NOT_EXIST,
+  CONFLICT,
+  SERVER_ERROR
+} = require('./responseCodes');
 
 const success = (res, body) => res.status(SUCCESS).send(body);
 
@@ -9,6 +16,9 @@ const missingQueryParam = (res, param) =>
 
 const missingBodyParam = (res, param) =>
   res.status(BAD_REQUEST).send({ message: `Missing body param: [${param}]` });
+
+const doesNotExist = (res, type, property) =>
+  res.status(DOES_NOT_EXIST).send({ message: `${type} [${property}] does not exist` });
 
 const alreadyExists = (res, type, property, value, container) =>
   res.status(CONFLICT).send({
@@ -23,6 +33,7 @@ module.exports = {
   created,
   missingQueryParam,
   missingBodyParam,
+  doesNotExist,
   alreadyExists,
   serverError
 };

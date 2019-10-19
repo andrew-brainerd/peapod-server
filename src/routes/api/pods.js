@@ -41,6 +41,19 @@ pods.get('/:podId', async (req, res) => {
   return status.success(res, { ...pod });
 });
 
+pods.delete('/:podId', async (req, res) => {
+  const { params: { podId } } = req;
+
+  if (!podId) return status.missingQueryParam(res, 'podId');
+
+  try {
+    const { name } = await podsData.deletePod(podId);
+    return status.success(res, { message: `Deleted pod [${name}]` });
+  } catch (err) {
+    return status.doesNotExist(res, 'Pod', podId);
+  }
+});
+
 pods.patch('/:podId/members', async (req, res) => {
   const { params: { podId }, body: { user } } = req;
 
