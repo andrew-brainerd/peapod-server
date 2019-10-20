@@ -8,7 +8,7 @@ pods.post('/', async (req, res) => {
   if (!name) return status.missingQueryParam(res, 'name');
 
   const newPod = await podsData.createPod(name);
-  if (!newPod) return status.serverError(res, err, `Failed to create pod ${name}`);
+  if (!newPod) return status.serverError(res, 'Failed', `Failed to create pod ${name}`);
 
   return status.created(res, { ...newPod });
 });
@@ -57,12 +57,12 @@ pods.patch('/:podId/members', async (req, res) => {
   if (!podId) return status.missingQueryParam(res, 'podId');
   if (!user) return status.missingBodyParam(res, 'user');
 
-  const { alreadyExists, podName } = await podsData.addMember(podId, user);
+  const { alreadyExists, name } = await podsData.addMember(podId, user);
   if (alreadyExists)
-    return status.alreadyExists(res, 'User', 'name', user.name, `pod [${podName}]`);
+    return status.alreadyExists(res, 'User', 'name', user.name, `pod [${name}]`);
 
   return status.success(res, {
-    message: `Added user [${user.name}] to pod [${podName}]`
+    message: `Added user [${user.name}] to pod [${name}]`
   });
 });
 
@@ -73,7 +73,7 @@ pods.delete('/:podId/members', async (req, res) => {
   if (!user) return status.missingBodyParam(res, 'user');
 
   const { notAMember } = await podsData.removeMember(podId, 'ballz');
-  if (!!notAMember) return status.doesNotExist(res, 'Member', user.name, `pod [${podId}]`);
+  if (notAMember) return status.doesNotExist(res, 'Member', user.name, `pod [${podId}]`);
 
   return status.success(res, {
     message: `Removed member ${user.name} from pod ${podId}`

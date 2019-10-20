@@ -20,12 +20,12 @@ const createPod = name => {
   });
 };
 
-const getPods = (page, size) => {
-  return new Promise(async (resolve, reject) => {
-    const collection = data.db.collection(PODS_COLLECTION);
-    const totalItems = await collection.countDocuments({});
-    const totalPages = data.calculateTotalPages(totalItems, size);
+const getPods = async (page, size) => {
+  const collection = data.db.collection(PODS_COLLECTION);
+  const totalItems = await collection.countDocuments({});
+  const totalPages = data.calculateTotalPages(totalItems, size);
 
+  return new Promise((resolve, reject) => {
     collection.find({})
       .skip(size * (page - 1))
       .limit(size)
@@ -41,7 +41,7 @@ const getPods = (page, size) => {
 };
 
 const getPod = podId => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
       .find({ _id: ObjectId(podId) })
       .toArray((err, result) =>
@@ -51,12 +51,12 @@ const getPod = podId => {
 };
 
 const updatePod = (podId, updates) => {
-  console.log(`Update Pod: ${updates}`);
+  console.log(`Update Pod ${podId}: ${updates}`);
 };
 
-const deletePod = podId => {
-  return new Promise(async (resolve, reject) => {
-    const pod = await getPod(podId);
+const deletePod = async podId => {
+  const pod = await getPod(podId);
+  return new Promise((resolve, reject) => {
     if (!pod) return reject({ error: `Pod [${podId}] does not exist` });
     data.db.collection(PODS_COLLECTION)
       .deleteOne(
@@ -66,9 +66,9 @@ const deletePod = podId => {
   });
 };
 
-const addMember = (podId, user) => {
-  return new Promise(async (resolve, reject) => {
-    const { name } = await getPod(podId);
+const addMember = async (podId, user) => {
+  const { name } = await getPod(podId);
+  return new Promise((resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
       .updateOne(
         { _id: ObjectId(podId) },
@@ -76,15 +76,15 @@ const addMember = (podId, user) => {
         (err, { matchedCount, modifiedCount }) => {
           if (err) reject(err);
           const alreadyExists = matchedCount === 1 && modifiedCount === 0;
-          resolve({ alreadyExists });
+          resolve({ alreadyExists, name });
         }
       );
   });
 };
 
-const removeMember = (podId, user) => {
-  return new Promise(async (resolve, reject) => {
-    const { name } = await getPod(podId);
+const removeMember = async (podId, user) => {
+  const { name } = await getPod(podId);
+  return new Promise((resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
       .updateOne(
         { _id: ObjectId(podId) },
@@ -92,15 +92,14 @@ const removeMember = (podId, user) => {
         (err, { matchedCount, modifiedCount }) => {
           if (err) reject(err);
           const notAMember = matchedCount === 1 && modifiedCount === 0;
-          console.log(`matched : ${matchedCount} | modified: ${modifiedCount}`);
-          resolve({ notAMember });
+          resolve({ notAMember, name });
         }
       );
   });
 };
 
 const addCategory = (podId, category) => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
       .updateOne(
         { _id: ObjectId(podId) },

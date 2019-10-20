@@ -27,8 +27,7 @@ const alreadyExists = (res, type, property, value, container) =>
     message: `${type} with ${property} [${value}] already exists${container ? ` in ${container}` : ''}` 
   });
 
-const serverError = (res, error, message) =>
-  res.status(SERVER_ERROR).send({ message: `${type} with ${property} [${value}] already exists` });
+const serverError = (res, error, message) => res.status(SERVER_ERROR).send({ message, error });
 
 module.exports = {
   success,

@@ -1,3 +1,5 @@
+/*eslint node/exports-style: none */
+
 const mongo = require('mongodb').MongoClient;
 const log = require('./log');
 
