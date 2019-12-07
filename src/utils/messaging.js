@@ -5,7 +5,7 @@ const client = new RestClient(
   process.env.SIGNALWIRE_API_KEY
 );
 
-exports.sendSms = body => {
+const sendSms = body => {
   client.messages
     .create({
       from: process.env.SIGNALWIRE_FROM_PHONE_NUMBER,
@@ -16,4 +16,8 @@ exports.sendSms = body => {
       console.log(`Sending message to ${message.to}: [${message.body}]`);
     })
     .done();
+};
+
+module.exports = {
+  sendSms
 };

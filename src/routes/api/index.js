@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const request = require('request');
 const version = process.env.API_VERSION;
 
 router.post('/', (req, res) => {

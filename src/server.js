@@ -1,28 +1,26 @@
 require('dotenv').config();
 const express = require('express');
-const jwt = require('express-jwt');
-const jwks = require('jwks-rsa');
 const log = require('./utils/log');
 
-const isProduction = process.env.NODE_ENV === 'production';
 const port = process.env.PORT || 5000;
-
 const app = express();
 
 app.use(express.json());
 
-const jwtCheck = jwt({
-  secret: jwks.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: 'https://peapod-dev.auth0.com/.well-known/jwks.json'
-  }),
-  audience: 'https://peapodbb-server.herokuapp.com/api',
-  issuer: 'https://peapod-dev.auth0.com/',
-  algorithms: ['RS256']
-});
-
+// Auth code
+// const jwt = require('express-jwt');
+// const jwks = require('jwks-rsa');
+// const jwtCheck = jwt({
+//   secret: jwks.expressJwtSecret({
+//     cache: true,
+//     rateLimit: true,
+//     jwksRequestsPerMinute: 5,
+//     jwksUri: 'https://peapod-dev.auth0.com/.well-known/jwks.json'
+//   }),
+//   audience: 'https://peapodbb-server.herokuapp.com/api',
+//   issuer: 'https://peapod-dev.auth0.com/',
+//   algorithms: ['RS256']
+// });
 // app.use(jwtCheck);
 
 app.use((req, res, next) => {

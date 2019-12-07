@@ -7,11 +7,11 @@ const getUserByEmail = email => {
     data.db.collection(USERS_COLLECTION)
       .find({ email })
       .project({ password: 0 })
-      .toArray((err, result) => {
-        err ? reject(err) : resolve(result[0]);
-      });
+      .toArray((err, result) =>
+        err ? reject(err) : resolve(result[0])
+      );
   });
-}
+};
 
 const createUser = user => {
   const userAuth = auth.encryptPassword(user.password);
@@ -22,9 +22,9 @@ const createUser = user => {
         err ? reject(err) : resolve(ops[0]);
       });
   });
-}
+};
 
 module.exports = {
   getUserByEmail,
   createUser
-}
+};
