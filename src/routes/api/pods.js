@@ -8,7 +8,7 @@ pods.post('/', async (req, res) => {
   if (!name) return status.missingQueryParam(res, 'name');
 
   const newPod = await podsData.createPod(name);
-  if (!newPod) return status.serverError(res, 'Failed', `Failed to create pod ${name}`);
+  if (!newPod) return status.serverError(res, 'Failed', `Failed to create pod [${name}]`);
 
   return status.created(res, { ...newPod });
 });
@@ -57,12 +57,12 @@ pods.patch('/:podId/members', async (req, res) => {
   if (!podId) return status.missingQueryParam(res, 'podId');
   if (!user) return status.missingBodyParam(res, 'user');
 
-  const { alreadyExists, name } = await podsData.addMember(podId, user);
+  const { alreadyExists, podName } = await podsData.addMember(podId, user);
   if (alreadyExists)
-    return status.alreadyExists(res, 'User', 'name', user.name, `pod [${name}]`);
+    return status.alreadyExists(res, 'User', 'name', user.name, `pod [${podName}]`);
 
   return status.success(res, {
-    message: `Added user [${user.name}] to pod [${name}]`
+    message: `Added user [${user.name}] to pod [${podName}]`
   });
 });
 
@@ -72,11 +72,11 @@ pods.delete('/:podId/members', async (req, res) => {
   if (!podId) return status.missingQueryParam(res, 'podId');
   if (!user) return status.missingBodyParam(res, 'user');
 
-  const { notAMember } = await podsData.removeMember(podId, 'ballz');
-  if (notAMember) return status.doesNotExist(res, 'Member', user.name, `pod [${podId}]`);
+  const { notAMember, podName } = await podsData.removeMember(podId, user);
+  if (notAMember) return status.doesNotExist(res, 'Member', user.name, `pod [${podName}]`);
 
   return status.success(res, {
-    message: `Removed member ${user.name} from pod ${podId}`
+    message: `Removed member [${user.name}] from pod [${podName}]`
   });
 });
 
@@ -86,11 +86,25 @@ pods.patch('/:podId/categories', async (req, res) => {
   if (!podId) return status.missingQueryParam(res, 'podId');
   if (!category) return status.missingBodyParam(res, 'category');
 
-  const { alreadyExists } = await podsData.addCategory(podId, category);
-  if (alreadyExists) return status.alreadyExists(res, 'Category', 'name', category.name);
+  const { alreadyExists, podName } = await podsData.addCategory(podId, category);
+  if (alreadyExists) return status.alreadyExists(res, 'Category', 'name', podName);
 
   return status.success(res, {
-    message: `Added category ${category.name} to pod ${podId}`
+    message: `Added category [${category.name}] to pod [${podName}]`
+  });
+});
+
+pods.delete('/:podId/categories', async (req, res) => {
+  const { params: { podId }, body: { category } } = req;
+
+  if (!podId) return status.missingQueryParam(res, 'podId');
+  if (!category) return status.missingBodyParam(res, 'category');
+
+  const { doesNotExist, podName } = await podsData.removeCategory(podId, category);
+  if (doesNotExist) return status.doesNotExist(res, 'Category', category.name, `pod [${podName}]`);
+
+  return status.success(res, {
+    message: `Removed category [${category.name}] from pod [${podName}]`
   });
 });
 

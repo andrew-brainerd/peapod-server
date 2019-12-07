@@ -13,4 +13,4 @@ module.exports = {
   DOES_NOT_EXIST,
   CONFLICT,
   SERVER_ERROR
-}
+};

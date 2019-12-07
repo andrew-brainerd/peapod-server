@@ -20,4 +20,4 @@ const sendSms = body => {
 
 module.exports = {
   sendSms
-}
+};

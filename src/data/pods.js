@@ -76,7 +76,7 @@ const addMember = async (podId, user) => {
         (err, { matchedCount, modifiedCount }) => {
           if (err) reject(err);
           const alreadyExists = matchedCount === 1 && modifiedCount === 0;
-          resolve({ alreadyExists, name });
+          resolve({ alreadyExists, podName: name });
         }
       );
   });
@@ -92,13 +92,14 @@ const removeMember = async (podId, user) => {
         (err, { matchedCount, modifiedCount }) => {
           if (err) reject(err);
           const notAMember = matchedCount === 1 && modifiedCount === 0;
-          resolve({ notAMember, name });
+          resolve({ notAMember, podName: name });
         }
       );
   });
 };
 
-const addCategory = (podId, category) => {
+const addCategory = async (podId, category) => {
+  const { name } = await getPod(podId);
   return new Promise((resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
       .updateOne(
@@ -107,7 +108,23 @@ const addCategory = (podId, category) => {
         (err, { matchedCount, modifiedCount }) => {
           if (err) reject(err);
           const alreadyExists = matchedCount === 1 && modifiedCount === 0;
-          resolve({ alreadyExists });
+          resolve({ alreadyExists, podName: name });
+        }
+      );
+  });
+};
+
+const removeCategory = async (podId, category) => {
+  const { name } = await getPod(podId);
+  return new Promise((resolve, reject) => {
+    data.db.collection(PODS_COLLECTION)
+      .updateOne(
+        { _id: ObjectId(podId) },
+        { $pull: { categories: category } },
+        (err, { matchedCount, modifiedCount }) => {
+          if (err) reject(err);
+          const doesNotExist = matchedCount === 1 && modifiedCount === 0;
+          resolve({ doesNotExist, podName: name });
         }
       );
   });
@@ -121,5 +138,6 @@ module.exports = {
   deletePod,
   addMember,
   removeMember,
-  addCategory
+  addCategory,
+  removeCategory
 };
