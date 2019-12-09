@@ -51,7 +51,7 @@ const getPod = podId => {
 };
 
 const updatePod = (podId, updates) => {
-  console.log(`Update Pod ${podId}: ${updates}`);
+  log.info(`Update Pod ${podId}: ${updates}`);
 };
 
 const deletePod = async podId => {
@@ -68,6 +68,7 @@ const deletePod = async podId => {
 
 const addMember = async (podId, user) => {
   const { name } = await getPod(podId);
+  log.cool(`Adding member ${user.name} (${user._id}) to pod ${name} (${podId})`);
   return new Promise((resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
       .updateOne(
@@ -84,6 +85,7 @@ const addMember = async (podId, user) => {
 
 const removeMember = async (podId, user) => {
   const { name } = await getPod(podId);
+  log.cool(`Removing member ${user.name} (${user._id}) from pod ${name} (${podId})`);
   return new Promise((resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
       .updateOne(
@@ -100,6 +102,7 @@ const removeMember = async (podId, user) => {
 
 const addCategory = async (podId, category) => {
   const { name } = await getPod(podId);
+  log.info(`Adding category ${category.name} to pod ${name} (${podId})`);
   return new Promise((resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
       .updateOne(
@@ -116,6 +119,7 @@ const addCategory = async (podId, category) => {
 
 const removeCategory = async (podId, category) => {
   const { name } = await getPod(podId);
+  log.info(`Removing category ${user.name} from pod ${name} (${podId})`);
   return new Promise((resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
       .updateOne(
