@@ -14,11 +14,11 @@ pods.post('/', async (req, res) => {
 });
 
 pods.get('/', async (req, res) => {
-  const { query: { pageNum, pageSize } } = req;
+  const { query: { pageNum, pageSize, userId } } = req;
   const page = parseInt(pageNum) || 1;
   const size = parseInt(pageSize) || 50;
 
-  const { items, totalItems, totalPages } = await podsData.getPods(page, size);
+  const { items, totalItems, totalPages } = await podsData.getPods(page, size, userId);
 
   return status.success(res, {
     items,

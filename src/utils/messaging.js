@@ -1,4 +1,5 @@
 const { RestClient } = require('@signalwire/node');
+const log = require('./log');
 
 const client = new RestClient(
   process.env.SIGNALWIRE_PROJECT_ID,
@@ -13,7 +14,7 @@ const sendSms = body => {
       body: body || 'Empty Message'
     })
     .then(message => {
-      console.log(`Sending message to ${message.to}: [${message.body}]`);
+      log.info(`Sending message to ${message.to}: [${message.body}]`);
     })
     .done();
 };

@@ -6,13 +6,8 @@ const { PODS_COLLECTION } = require('../constants/collections');
 
 const createPod = name => {
   return new Promise((resolve, reject) => {
-    const pod = {
-      name: name,
-      members: [{ name: 'admin' }]
-    };
-
     data.db.collection(PODS_COLLECTION)
-      .insertOne(pod, (err, { ops }) => {
+      .insertOne({ name }, (err, { ops }) => {
         log.success(`Created new pod ${name}`);
         messaging.sendSms(`Created new pod ${name}`);
         err ? reject(err) : resolve(ops[0]);
@@ -20,13 +15,15 @@ const createPod = name => {
   });
 };
 
-const getPods = async (page, size) => {
+const getPods = async (page, size, userId) => {
   const collection = data.db.collection(PODS_COLLECTION);
   const totalItems = await collection.countDocuments({});
   const totalPages = data.calculateTotalPages(totalItems, size);
 
   return new Promise((resolve, reject) => {
-    collection.find({})
+    const query = userId ? { 'members._id': userId } : {};
+    collection
+      .find(query)
       .skip(size * (page - 1))
       .limit(size)
       .sort({ $natural: -1 })
@@ -119,7 +116,7 @@ const addCategory = async (podId, category) => {
 
 const removeCategory = async (podId, category) => {
   const { name } = await getPod(podId);
-  log.info(`Removing category ${user.name} from pod ${name} (${podId})`);
+  log.info(`Removing category ${category} from pod ${name} (${podId})`);
   return new Promise((resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
       .updateOne(
