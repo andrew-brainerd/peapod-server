@@ -42,11 +42,23 @@ spotify.get('/artistAlbums', async (req, res) => {
 
   spotifyApi.setAccessToken(accessToken);
 
-  if (!accessToken) log.error('No access token');
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  spotifyApi.setAccessToken(accessToken);
 
   spotifyApi.getArtistAlbums(artistId)
     .then(data => status.success(res, { ...data.body }))
     .catch(err => log.error('Failed to fetch user playlists', err));
+});
+
+spotify.get('/myTopTracks', async (req, res) => {
+  const { query: { accessToken } } = req;
+
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  spotifyApi.setAccessToken(accessToken);
+
+  spotifyApi.getMyTopTracks()
+    .then(data => status.success(res, { ...data.body }))
+    .catch(err => log.error('Failed to fetch user top tracks', err));
 });
 
 module.exports = spotify;
