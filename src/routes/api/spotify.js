@@ -29,9 +29,8 @@ spotify.get('/callback', async (req, res) => {
         access_token,
         expires_in,
         refresh_token
-      })
+      });
 
-      log.cool(`Redirecting to ${frontendUrl}/spotify/auth${params}`);
       res.redirect(`${frontendUrl}/spotify/auth${params}`);
     })
     .catch(err => log.error('Authorization Failed', err));
