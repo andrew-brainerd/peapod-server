@@ -40,8 +40,6 @@ spotify.get('/artistAlbums', async (req, res) => {
   const { query: { accessToken } } = req;
   const artistId = '4xRYI6VqpkE3UwrDrAZL8L';
 
-  spotifyApi.setAccessToken(accessToken);
-
   if (!accessToken) return status.missingQueryParam(res, 'accessToken');
   spotifyApi.setAccessToken(accessToken);
 
