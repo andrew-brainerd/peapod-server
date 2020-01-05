@@ -14,5 +14,6 @@ router.get('/', (req, res) => {
 });
 
 router.use('/pods', require('./pods'));
+router.use('/spotify', require('./spotify'));
 
 module.exports = router;
