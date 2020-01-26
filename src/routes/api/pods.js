@@ -51,6 +51,17 @@ pods.delete('/:podId', async (req, res) => {
   }
 });
 
+pods.post('/:podId/invite', async (req, res) => {
+  const { params: { podId }, body: { messageType, to } } = req;
+
+  if (!to) return status.missingQueryParam(res, 'to');
+
+  const invite = await podsData.sendInviteCode(podId, messageType, to);
+  if (!invite) return status.serverError(res, 'Failed', `Failed sending invite to [${to}]`);
+
+  return status.success(res, { ...invite });
+});
+
 pods.patch('/:podId/members', async (req, res) => {
   const { params: { podId }, body: { user } } = req;
 

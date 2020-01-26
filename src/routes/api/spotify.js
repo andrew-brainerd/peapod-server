@@ -20,6 +20,22 @@ spotify.get('/auth', async (req, res) => {
   res.send({ authUrl: `${SPOTIFY_AUTH_URL}${params}` });
 });
 
+spotify.post('/auth', async (req, res) => {
+  const { body: { accessToken, refreshToken } } = req;
+
+  spotifyApi.setAccessToken(accessToken);
+  spotifyApi.setRefreshToken(refreshToken);
+
+  spotifyApi.refreshAccessToken()
+    .then(response => {
+      status.success(res, { response });
+    })
+    .catch(err => {
+      console.error(err);
+      status.serverError(res, err, 'Refresh Failed');
+    });
+});
+
 spotify.get('/callback', async (req, res) => {
   const { query: { code } } = req;
 

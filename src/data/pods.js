@@ -1,17 +1,37 @@
 const data = require('../utils/data');
 const ObjectId = require('mongodb').ObjectId;
 const log = require('../utils/log');
-const messaging = require('../utils/messaging');
+const { messageTypes, sendSms } = require('../utils/messaging');
 const { PODS_COLLECTION } = require('../constants/collections');
 
 const createPod = name => {
   return new Promise((resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
       .insertOne({ name }, (err, { ops }) => {
-        log.success(`Created new pod ${name}`);
-        messaging.sendSms(`Created new pod ${name}`);
-        err ? reject(err) : resolve(ops[0]);
+        const newPod = ops[0];
+        log.success(`Created new pod ${newPod.name} (${newPod._id})`);
+        sendSms(`Created new pod ${newPod.name}`);
+        err ? reject(err) : resolve(newPod);
       });
+  });
+};
+
+const sendInviteCode = async (podId, messageType, to) => {
+  const { name } = await getPod(podId);
+  const frontendUrl = process.env.PEAPOD_UI_URL;
+  const inviteLink = `${frontendUrl}/pods/${podId}`;
+
+  return new Promise((resolve, reject) => {
+    if (messageType === messageTypes.SMS) {
+      try {
+        sendSms(`You've been invited to a Peapod: ${inviteLink}`, to);
+        resolve({ message: `Sent invite link via ${messageType} for pod ${name} (${podId}) to ${to}` });
+      } catch (err) {
+        const errorMessage = `Invalid messageType provided: [${messageType}]`;
+      console.error(errorMessage);
+      reject(errorMessage);
+      }
+    }
   });
 };
 
@@ -133,6 +153,7 @@ const removeCategory = async (podId, category) => {
 
 module.exports = {
   createPod,
+  sendInviteCode,
   getPods,
   getPod,
   updatePod,
