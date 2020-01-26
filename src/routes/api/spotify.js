@@ -75,4 +75,15 @@ spotify.get('/myTopTracks', async (req, res) => {
     .catch(err => log.error('Failed to fetch user top tracks', err));
 });
 
+spotify.get('/myNowPlaying', async (req, res) => {
+  const { query: { accessToken } } = req;
+
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  spotifyApi.setAccessToken(accessToken);
+
+  spotifyApi.getMyCurrentPlayingTrack()
+    .then(data => status.success(res, { ...data.body }))
+    .catch(err => log.error('Failed to fetch user currently playing', err));
+});
+
 module.exports = spotify;
