@@ -91,31 +91,31 @@ pods.delete('/:podId/members', async (req, res) => {
   });
 });
 
-pods.patch('/:podId/categories', async (req, res) => {
-  const { params: { podId }, body: { category } } = req;
+pods.patch('/:podId/tracks', async (req, res) => {
+  const { params: { podId }, body: { track } } = req;
 
   if (!podId) return status.missingQueryParam(res, 'podId');
-  if (!category) return status.missingBodyParam(res, 'category');
+  if (!track) return status.missingBodyParam(res, 'track');
 
-  const { alreadyExists, podName } = await podsData.addCategory(podId, category);
-  if (alreadyExists) return status.alreadyExists(res, 'Category', 'name', podName);
+  const { alreadyExists, podName } = await podsData.addTrack(podId, track);
+  if (alreadyExists) return status.alreadyExists(res, 'Track', 'name', podName);
 
   return status.success(res, {
-    message: `Added category [${category.name}] to pod [${podName}]`
+    message: `Added track [${track.name}] to pod [${podName}]`
   });
 });
 
-pods.delete('/:podId/categories', async (req, res) => {
-  const { params: { podId }, body: { category } } = req;
+pods.delete('/:podId/tracks', async (req, res) => {
+  const { params: { podId }, body: { track } } = req;
 
   if (!podId) return status.missingQueryParam(res, 'podId');
-  if (!category) return status.missingBodyParam(res, 'category');
+  if (!track) return status.missingBodyParam(res, 'track');
 
-  const { doesNotExist, podName } = await podsData.removeCategory(podId, category);
-  if (doesNotExist) return status.doesNotExist(res, 'Category', category.name, `pod [${podName}]`);
+  const { doesNotExist, podName } = await podsData.removeTrack(podId, track);
+  if (doesNotExist) return status.doesNotExist(res, 'Track', track.name, `pod [${podName}]`);
 
   return status.success(res, {
-    message: `Removed category [${category.name}] from pod [${podName}]`
+    message: `Removed track [${track.name}] from pod [${podName}]`
   });
 });
 
