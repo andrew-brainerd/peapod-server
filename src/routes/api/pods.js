@@ -3,11 +3,12 @@ const podsData = require('../../data/pods');
 const status = require('../../constants/statusMessages');
 
 pods.post('/', async (req, res) => {
-  const { body: { name } } = req;
+  const { body: { name, createdBy } } = req;
 
-  if (!name) return status.missingQueryParam(res, 'name');
+  if (!name) return status.missingBodyParam(res, 'name');
+  if (!createdBy) return status.missingBodyParam(res, 'createdBy');
 
-  const newPod = await podsData.createPod(name);
+  const newPod = await podsData.createPod(name, createdBy);
   if (!newPod) return status.serverError(res, 'Failed', `Failed to create pod [${name}]`);
 
   return status.created(res, { ...newPod });
