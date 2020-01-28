@@ -1,4 +1,4 @@
-const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
+const AUTH_URL = 'https://accounts.spotify.com/authorize';
 
 const SCOPES = [
   'user-read-private',
@@ -18,7 +18,20 @@ const SCOPES = [
   'playlist-modify-private'
 ].join(' ');
 
+const SEARCH_TYPES = [
+  'album',
+  'artist',
+  'playlist',
+  'track'
+];
+
+const DEFAULT_SEARCH_OPTIONS = {
+  limit: 20
+};
+
 module.exports = {
-  SPOTIFY_AUTH_URL,
-  SCOPES
+  AUTH_URL,
+  SCOPES,
+  SEARCH_TYPES,
+  DEFAULT_SEARCH_OPTIONS
 };

@@ -1,7 +1,13 @@
+const isEmpty = require('lodash/isEmpty');
 const spotify = require('express').Router();
 const { spotifyApi } = require('../../utils/spotify');
 const { formatUrlParams } = require('../../utils/url');
-const { SPOTIFY_AUTH_URL, SCOPES } = require('../../constants/spotify');
+const {
+  AUTH_URL,
+  SCOPES,
+  SEARCH_TYPES,
+  DEFAULT_SEARCH_OPTIONS
+} = require('../../constants/spotify');
 const status = require('../../constants/statusMessages');
 const log = require('../../utils/log');
 
@@ -17,7 +23,7 @@ spotify.get('/auth', async (req, res) => {
     redirect_uri: encodeURIComponent(redirectUri)
   });
 
-  res.send({ authUrl: `${SPOTIFY_AUTH_URL}${params}` });
+  res.send({ authUrl: `${AUTH_URL}${params}` });
 });
 
 spotify.post('/auth', async (req, res) => {
@@ -73,6 +79,24 @@ spotify.get('/myTopTracks', async (req, res) => {
   spotifyApi.getMyTopTracks()
     .then(data => status.success(res, { ...data.body }))
     .catch(err => log.error('Failed to fetch user top tracks', err));
+});
+
+spotify.post('/search', async (req, res) => {
+  const { query: { accessToken }, body: { searchText, types, options } } = req;
+
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  if (!searchText) return status.missingBodyParam(res, 'searchText');
+  spotifyApi.setAccessToken(accessToken);
+
+  const invalidTypes = (types || []).filter(type => !types.includes(type));
+  if (!isEmpty(invalidTypes)) return status.serverError(res, null, `Invalid types provided: ${invalidTypes}`);
+
+  const searchTypes = types || SEARCH_TYPES;
+  const searchOptions = options || DEFAULT_SEARCH_OPTIONS;
+
+  spotifyApi.search(searchText, searchTypes, searchOptions)
+    .then(data => status.success(res, { ...data.body }))
+    .catch(err => log.error(`Failed to search for [${searchText}]`, err));
 });
 
 spotify.get('/myNowPlaying', async (req, res) => {

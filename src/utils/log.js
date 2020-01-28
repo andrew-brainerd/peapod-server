@@ -14,9 +14,9 @@ const success = (message, opts = '') =>
 const warn = (message, opts = '') => !!opts ?
   log(chalk.yellow(message), opts) : log(chalk.yellow(message));
 
-const error = (message, err, opts = '') => !!opts ?
-  log(chalk.red(`${message} ${getError(err)}`), opts) :
-  log(chalk.red(`${message} ${getError(err)}`));
+const error = (message, err = {}, opts = '') => !!opts ?
+  log(chalk.red(`${message}${getError(err)}`), opts) :
+  log(chalk.red(`${message}${getError(err)}`));
 
 module.exports = {
   info,
