@@ -58,6 +58,17 @@ spotify.get('/callback', async (req, res) => {
     .catch(err => log.error('Authorization Failed', err));
 });
 
+spotify.get('/profile', async (req, res) => {
+  const { query: { accessToken } } = req;
+
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  spotifyApi.setAccessToken(accessToken);
+
+  spotifyApi.getMe()
+    .then(data => status.success(res, { ...data.body }))
+    .catch(err => log.error('Failed to fetch user profile', err));
+});
+
 spotify.get('/artistAlbums', async (req, res) => {
   const { query: { accessToken } } = req;
   const artistId = '4xRYI6VqpkE3UwrDrAZL8L';
