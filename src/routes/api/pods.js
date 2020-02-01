@@ -33,7 +33,7 @@ pods.get('/', async (req, res) => {
 pods.get('/:podId', async (req, res) => {
   const { params: { podId } } = req;
 
-  if (!podId) return status.missingQueryParam(res, 'podId');
+  if (!podId || podId === 'undefined') return status.missingQueryParam(res, 'podId');
 
   const pod = await podsData.getPod(podId);
   return status.success(res, { ...pod });

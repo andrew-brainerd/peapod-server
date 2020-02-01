@@ -110,6 +110,28 @@ spotify.post('/search', async (req, res) => {
     .catch(err => log.error(`Failed to search for [${searchText}]`, err));
 });
 
+spotify.get('/myDevices', async (req, res) => {
+  const { query: { accessToken } } = req;
+
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  spotifyApi.setAccessToken(accessToken);
+
+  spotifyApi.getMyDevices()
+    .then(data => status.success(res, { ...data.body }))
+    .catch(err => log.error('Failed to fetch user devices', err));
+});
+
+spotify.get('/myPlaybackState', async (req, res) => {
+  const { query: { accessToken } } = req;
+
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  spotifyApi.setAccessToken(accessToken);
+
+  spotifyApi.getMyCurrentPlaybackState()
+    .then(data => status.success(res, { ...data.body }))
+    .catch(err => log.error('Failed to fetch user current playback state', err));
+});
+
 spotify.get('/myNowPlaying', async (req, res) => {
   const { query: { accessToken } } = req;
 
@@ -119,6 +141,69 @@ spotify.get('/myNowPlaying', async (req, res) => {
   spotifyApi.getMyCurrentPlayingTrack()
     .then(data => status.success(res, { ...data.body }))
     .catch(err => log.error('Failed to fetch user currently playing', err));
+});
+
+spotify.put('/transferPlayback', async (req, res) => {
+  const { query: { accessToken }, body: { devices, shouldPlay = true } } = req;
+
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  if (!devices) return status.missingBodyParam(res, 'devices');
+  spotifyApi.setAccessToken(accessToken);
+
+  spotifyApi.transferMyPlayback({ device_ids: devices, play: shouldPlay })
+    .then(data => status.success(res, { ...data.body }))
+    .catch(err => log.error('Failed to fetch user current playback state', err));
+});
+
+spotify.put('/play', async (req, res) => {
+  const { query: { accessToken }, body: { contextUri, uris, offset, position } } = req;
+
+  console.log('Body: %o', req.body);
+
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  // if (!contextUri && !uris) return status.missingBodyParam(res, 'contextUri or uris');
+  if (!!contextUri && !!uris) return status.serverError(res, null, 'Provide only one: contextUri or uris');
+  spotifyApi.setAccessToken(accessToken);
+
+  const options = {};
+
+  if (!!contextUri) {
+    options.context_uri = contextUri;
+    options.offset = offset || {};
+  }
+
+  if (!!uris) {
+    options.uris = uris;
+  }
+
+  if (!!position) {
+    options.position_ms = position;
+  }
+
+  console.log(options);
+
+  spotifyApi.play(options)
+    .then(data => {
+      log.cool(`Playing %o`, uris);
+      status.success(res, { ...data.body })
+    }) 
+    .catch(err => {
+      log.error('Failed to play', err);
+      status.serverError(res, err);
+    });
+});
+
+spotify.put('/pause', async (req, res) => {
+  const { query: { accessToken } } = req;
+
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  spotifyApi.setAccessToken(accessToken);
+
+  log.cool(`Pausing`);
+
+  spotifyApi.pause()
+    .then(data => status.success(res, { ...data.body }))
+    .catch(err => log.error('Failed to play', err));
 });
 
 module.exports = spotify;
