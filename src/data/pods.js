@@ -117,14 +117,31 @@ const removeMember = async (podId, user) => {
   });
 };
 
-const addTrack = async (podId, track) => {
+const addTrackToPlayQueue = async (podId, track) => {
   const { name } = await getPod(podId);
-  log.info(`Adding track ${track.name} to pod ${name} (${podId})`);
+  log.info(`Adding track ${track.name} to pod ${name} (${podId}) play queue`);
   return new Promise((resolve, reject) => {
     data.db.collection(PODS_COLLECTION)
       .updateOne(
         { _id: ObjectId(podId) },
-        { $addToSet: { tracks: track } },
+        { $addToSet: { queue: track } },
+        (err, { matchedCount, modifiedCount }) => {
+          if (err) reject(err);
+          const alreadyExists = matchedCount === 1 && modifiedCount === 0;
+          resolve({ alreadyExists, podName: name });
+        }
+      );
+  });
+};
+
+const addTrackToPlayHistory = async (podId, track) => {
+  const { name } = await getPod(podId);
+  log.info(`Adding track ${track.name} to pod ${name} (${podId}) play history`);
+  return new Promise((resolve, reject) => {
+    data.db.collection(PODS_COLLECTION)
+      .updateOne(
+        { _id: ObjectId(podId) },
+        { $addToSet: { history: track } },
         (err, { matchedCount, modifiedCount }) => {
           if (err) reject(err);
           const alreadyExists = matchedCount === 1 && modifiedCount === 0;
@@ -160,6 +177,7 @@ module.exports = {
   deletePod,
   addMember,
   removeMember,
-  addTrack,
+  addTrackToPlayQueue,
+  addTrackToPlayHistory,
   removeTrack
 };
