@@ -2,6 +2,13 @@ const pods = require('express').Router();
 const podsData = require('../../data/pods');
 const status = require('../../constants/statusMessages');
 
+const isDefined = value => {
+  if (typeof value === 'string') {
+    return value !== 'undefined';
+  }
+  return !!value;
+};
+
 pods.post('/', async (req, res) => {
   const { body: { name, createdBy } } = req;
 
@@ -33,7 +40,7 @@ pods.get('/', async (req, res) => {
 pods.get('/:podId', async (req, res) => {
   const { params: { podId } } = req;
 
-  if (!podId || podId === 'undefined') return status.missingQueryParam(res, 'podId');
+  if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
 
   const pod = await podsData.getPod(podId);
   return status.success(res, { ...pod });
@@ -42,7 +49,7 @@ pods.get('/:podId', async (req, res) => {
 pods.delete('/:podId', async (req, res) => {
   const { params: { podId } } = req;
 
-  if (!podId) return status.missingQueryParam(res, 'podId');
+  if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
 
   try {
     const { name } = await podsData.deletePod(podId);
@@ -55,7 +62,8 @@ pods.delete('/:podId', async (req, res) => {
 pods.post('/:podId/invite', async (req, res) => {
   const { params: { podId }, body: { messageType, to } } = req;
 
-  if (!to) return status.missingQueryParam(res, 'to');
+  if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
+  if (!to) return status.missingBodyParam(res, 'to');
 
   const invite = await podsData.sendInviteCode(podId, messageType, to);
   if (!invite) return status.serverError(res, 'Failed', `Failed sending invite to [${to}]`);
@@ -66,7 +74,7 @@ pods.post('/:podId/invite', async (req, res) => {
 pods.patch('/:podId/members', async (req, res) => {
   const { params: { podId }, body: { user } } = req;
 
-  if (!podId) return status.missingQueryParam(res, 'podId');
+  if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!user) return status.missingBodyParam(res, 'user');
 
   const { alreadyExists, podName } = await podsData.addMember(podId, user);
@@ -81,7 +89,7 @@ pods.patch('/:podId/members', async (req, res) => {
 pods.delete('/:podId/members', async (req, res) => {
   const { params: { podId }, body: { user } } = req;
 
-  if (!podId) return status.missingQueryParam(res, 'podId');
+  if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!user) return status.missingBodyParam(res, 'user');
 
   const { notAMember, podName } = await podsData.removeMember(podId, user);
@@ -95,7 +103,7 @@ pods.delete('/:podId/members', async (req, res) => {
 pods.patch('/:podId/queue', async (req, res) => {
   const { params: { podId }, body: { track } } = req;
 
-  if (!podId) return status.missingQueryParam(res, 'podId');
+  if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!track) return status.missingBodyParam(res, 'track');
 
   const { alreadyExists, podName } = await podsData.addTrackToPlayQueue(podId, track);
@@ -109,7 +117,7 @@ pods.patch('/:podId/queue', async (req, res) => {
 pods.patch('/:podId/history', async (req, res) => {
   const { params: { podId }, body: { track } } = req;
 
-  if (!podId) return status.missingQueryParam(res, 'podId');
+  if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!track) return status.missingBodyParam(res, 'track');
 
   const { alreadyExists, podName } = await podsData.addTrackToPlayHistory(podId, track);
