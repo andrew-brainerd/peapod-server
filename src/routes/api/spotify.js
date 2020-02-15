@@ -150,9 +150,9 @@ spotify.put('/transferPlayback', async (req, res) => {
   if (!devices) return status.missingBodyParam(res, 'devices');
   spotifyApi.setAccessToken(accessToken);
 
-  spotifyApi.transferMyPlayback({ device_ids: devices, play: shouldPlay })
+  spotifyApi.transferMyPlayback({ deviceIds: devices, play: shouldPlay })
     .then(data => status.success(res, { ...data.body }))
-    .catch(err => log.error('Failed to fetch user current playback state', err));
+    .catch(err => log.error('Failed to tranfer user playback', err));
 });
 
 spotify.put('/play', async (req, res) => {

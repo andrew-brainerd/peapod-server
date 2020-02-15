@@ -6,7 +6,7 @@ const { PODS_COLLECTION } = require('../constants/collections');
 
 const createPod = (name, createdBy) => {
   return new Promise((resolve, reject) => {
-    data.db.collection(PODS_COLLECTION)
+    data.db && data.db.collection(PODS_COLLECTION)
       .insertOne({ name, createdBy }, (err, { ops }) => {
         const newPod = ops[0];
         log.success(`Created new pod ${newPod.name} (${newPod._id})`);
@@ -36,13 +36,13 @@ const sendInviteCode = async (podId, messageType, to) => {
 };
 
 const getPods = async (page, size, userId) => {
-  const collection = data.db.collection(PODS_COLLECTION);
+  const collection = data.db && data.db.collection(PODS_COLLECTION);
   const totalItems = await collection.countDocuments({});
   const totalPages = data.calculateTotalPages(totalItems, size);
 
   return new Promise((resolve, reject) => {
     const query = userId ? { 'members._id': userId } : {};
-    collection
+    collection && collection
       .find(query)
       .skip(size * (page - 1))
       .limit(size)
@@ -59,7 +59,7 @@ const getPods = async (page, size, userId) => {
 
 const getPod = podId => {
   return new Promise((resolve, reject) => {
-    data.db.collection(PODS_COLLECTION)
+    data.db && data.db.collection(PODS_COLLECTION)
       .find({ _id: ObjectId(podId) })
       .toArray((err, result) =>
         err ? reject(err) : resolve(result[0])
@@ -75,7 +75,7 @@ const deletePod = async podId => {
   const pod = await getPod(podId);
   return new Promise((resolve, reject) => {
     if (!pod) return reject({ error: `Pod [${podId}] does not exist` });
-    data.db.collection(PODS_COLLECTION)
+    data.db && data.db.collection(PODS_COLLECTION)
       .deleteOne(
         { _id: ObjectId(podId) },
         err => err ? reject(err) : resolve({ name: pod.name })
@@ -87,7 +87,7 @@ const addMember = async (podId, user) => {
   const { name } = await getPod(podId);
   log.cool(`Adding member ${user.name} (${user._id}) to pod ${name} (${podId})`);
   return new Promise((resolve, reject) => {
-    data.db.collection(PODS_COLLECTION)
+    data.db && data.db.collection(PODS_COLLECTION)
       .updateOne(
         { _id: ObjectId(podId) },
         { $addToSet: { members: user } },
@@ -104,7 +104,7 @@ const removeMember = async (podId, user) => {
   const { name } = await getPod(podId);
   log.cool(`Removing member ${user.name} (${user._id}) from pod ${name} (${podId})`);
   return new Promise((resolve, reject) => {
-    data.db.collection(PODS_COLLECTION)
+    data.db && data.db.collection(PODS_COLLECTION)
       .updateOne(
         { _id: ObjectId(podId) },
         { $pull: { members: user } },
@@ -121,7 +121,7 @@ const addTrackToPlayQueue = async (podId, track) => {
   const { name } = await getPod(podId);
   log.info(`Adding track ${track.name} to pod ${name} (${podId}) play queue`);
   return new Promise((resolve, reject) => {
-    data.db.collection(PODS_COLLECTION)
+    data.db && data.db.collection(PODS_COLLECTION)
       .updateOne(
         { _id: ObjectId(podId) },
         { $addToSet: { queue: track } },
@@ -138,7 +138,7 @@ const addTrackToPlayHistory = async (podId, track) => {
   const { name } = await getPod(podId);
   log.info(`Adding track ${track.name} to pod ${name} (${podId}) play history`);
   return new Promise((resolve, reject) => {
-    data.db.collection(PODS_COLLECTION)
+    data.db && data.db.collection(PODS_COLLECTION)
       .updateOne(
         { _id: ObjectId(podId) },
         { $addToSet: { history: track } },
@@ -155,7 +155,7 @@ const removeTrack = async (podId, track) => {
   const { name } = await getPod(podId);
   log.info(`Removing track ${track} from pod ${name} (${podId})`);
   return new Promise((resolve, reject) => {
-    data.db.collection(PODS_COLLECTION)
+    data.db && data.db.collection(PODS_COLLECTION)
       .updateOne(
         { _id: ObjectId(podId) },
         { $pull: { tracks: track } },
