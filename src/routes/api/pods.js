@@ -1,13 +1,7 @@
 const pods = require('express').Router();
 const podsData = require('../../data/pods');
 const status = require('../../constants/statusMessages');
-
-const isDefined = value => {
-  if (typeof value === 'string') {
-    return value !== 'undefined';
-  }
-  return !!value;
-};
+const { isDefined } = require('../../utils/url');
 
 pods.post('/', async (req, res) => {
   const { body: { name, createdBy } } = req;

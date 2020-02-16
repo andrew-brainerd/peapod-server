@@ -7,6 +7,14 @@ const formatUrlParams = options => {
     ).join('&')}`) || '';
 }
 
+const isDefined = value => {
+  if (typeof value === 'string') {
+    return value !== 'undefined';
+  }
+  return !!value;
+};
+
 module.exports = {
-  formatUrlParams
+  formatUrlParams,
+  isDefined
 };
