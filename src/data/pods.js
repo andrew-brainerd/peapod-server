@@ -7,7 +7,7 @@ const { PODS_COLLECTION } = require('../constants/collections');
 const createPod = (name, createdBy) => {
   return new Promise((resolve, reject) => {
     data.db && data.db.collection(PODS_COLLECTION)
-      .insertOne({ name, createdBy }, (err, { ops }) => {
+      .insertOne({ name, createdBy, members: [createdBy] }, (err, { ops }) => {
         const newPod = ops[0];
         log.success(`Created new pod ${newPod.name} (${newPod._id})`);
         sendSms(`Created new pod ${newPod.name}`, '9897210902');
@@ -41,7 +41,7 @@ const getPods = async (page, size, userId) => {
   const totalPages = data.calculateTotalPages(totalItems, size);
 
   return new Promise((resolve, reject) => {
-    const query = userId ? { 'members._id': userId } : {};
+    const query = userId ? { 'members.id': userId } : {};
     collection && collection
       .find(query)
       .skip(size * (page - 1))
