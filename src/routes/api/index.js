@@ -13,6 +13,7 @@ router.get('/', (req, res) => {
   });
 });
 
+router.use('/notify', require('./notify'));
 router.use('/pods', require('./pods'));
 router.use('/spotify', require('./spotify'));
 router.use('/sync', require('./sync'));
