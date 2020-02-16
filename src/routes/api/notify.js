@@ -6,10 +6,9 @@ const DISCORD_URL = 'https://discordapp.com/api'
 const PEAPOD_CHANNEL = '678429686480502787/fmd1n7lXPNOPNnvR6cUK5gxRBXo-B4HnCGQRliYYU4wPqo9lgTWYOtSrjfKXl6jfDJtf';
 
 notify.post('/discord', async (req, res) => {
-  const { body } = req;
-  const { message } = body;
-
-  console.log(body);
+  const { body: { data } } = req;
+  Object.keys(data).map(d => console.log(d));
+  const message = `Released ${data.app.name} version ${data.release.version} [${data.user.email}]`;
 
   await fetch(`${DISCORD_URL}/webhooks/${PEAPOD_CHANNEL}`, {
     method: 'POST',
