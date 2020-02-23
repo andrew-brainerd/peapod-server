@@ -7,7 +7,6 @@ const PEAPOD_CHANNEL = '678429686480502787/fmd1n7lXPNOPNnvR6cUK5gxRBXo-B4HnCGQRl
 
 notify.post('/discord', async (req, res) => {
   const { body: { data } } = req;
-  Object.keys(data).map(d => console.log(d));
   const message = `Released ${data.app.name} version ${data.release.version} [${data.user.email}]`;
 
   await fetch(`${DISCORD_URL}/webhooks/${PEAPOD_CHANNEL}`, {

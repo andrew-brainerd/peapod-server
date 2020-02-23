@@ -85,7 +85,7 @@ const deletePod = async podId => {
 
 const addMember = async (podId, user) => {
   const { name } = await getPod(podId);
-  log.cool(`Adding member ${user.name} (${user._id}) to pod ${name} (${podId})`);
+  log.cool(`Adding member ${userName} (${userId}) to pod ${name} (${podId})`);
   return new Promise((resolve, reject) => {
     data.db && data.db.collection(PODS_COLLECTION)
       .updateOne(
@@ -102,7 +102,8 @@ const addMember = async (podId, user) => {
 
 const removeMember = async (podId, user) => {
   const { name } = await getPod(podId);
-  log.cool(`Removing member ${user.name} (${user._id}) from pod ${name} (${podId})`);
+  const { display_name: userName, id: userId } = user;
+  log.cool(`Removing member ${userName} (${userId}) from pod ${name} (${podId})`);
   return new Promise((resolve, reject) => {
     data.db && data.db.collection(PODS_COLLECTION)
       .updateOne(
@@ -168,6 +169,42 @@ const removeTrack = async (podId, track) => {
   });
 };
 
+const addActiveMember = async (podId, user) => {
+  const { name } = await getPod(podId);
+  const { display_name: userName, id: userId } = user;
+  log.cool(`Adding active member ${userName} (${userId}) to pod ${name} (${podId})`);
+  return new Promise((resolve, reject) => {
+    data.db && data.db.collection(PODS_COLLECTION)
+      .updateOne(
+        { _id: ObjectId(podId) },
+        { $addToSet: { activeMembers: user } },
+        (err, { matchedCount, modifiedCount }) => {
+          if (err) reject(err);
+          const alreadyExists = matchedCount === 1 && modifiedCount === 0;
+          resolve({ alreadyExists, podName: name });
+        }
+      );
+  });
+};
+
+const removeActiveMember = async (podId, user) => {
+  const { name } = await getPod(podId);
+  const { display_name: userName, id: userId } = user;
+  log.cool(`Removing active member ${userName} (${userId}) from pod ${name} (${podId})`);
+  return new Promise((resolve, reject) => {
+    data.db && data.db.collection(PODS_COLLECTION)
+      .updateOne(
+        { _id: ObjectId(podId) },
+        { $pull: { activeMembers: user } },
+        (err, { matchedCount, modifiedCount }) => {
+          if (err) reject(err);
+          const notAMember = matchedCount === 1 && modifiedCount === 0;
+          resolve({ notAMember, podName: name });
+        }
+      );
+  });
+};
+
 module.exports = {
   createPod,
   sendInviteCode,
@@ -179,5 +216,7 @@ module.exports = {
   removeMember,
   addTrackToPlayQueue,
   addTrackToPlayHistory,
-  removeTrack
+  removeTrack,
+  addActiveMember,
+  removeActiveMember
 };
