@@ -114,8 +114,7 @@ pods.patch('/:podId/history', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!track) return status.missingBodyParam(res, 'track');
 
-  const { alreadyExists, podName } = await podsData.addTrackToPlayHistory(podId, track);
-  // if (alreadyExists) return status.alreadyExists(res, 'Track', 'name', podName);
+  const { podName } = await podsData.addTrackToPlayHistory(podId, track);
 
   return status.success(res, {
     message: `Added track [${track.name}] to pod [${podName}] play history`
@@ -128,26 +127,23 @@ pods.patch('/:podId/activeMembers', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!user) return status.missingBodyParam(res, 'user');
 
-  const { alreadyExists, podName } = await podsData.addActiveMember(podId, user);
-  // if (alreadyExists)
-  //   return status.alreadyExists(res, 'User', 'name', user.name, `pod [${podName}]`);
+  const { podName } = await podsData.addActiveMember(podId, user);
 
   return status.success(res, {
     message: `Added active user [${user.name}] to pod [${podName}]`
   });
 });
 
-pods.delete('/:podId/activeMembers', async (req, res) => {
-  const { params: { podId }, body: { user } } = req;
+pods.post('/:podId/activeMembers/:userId', async (req, res) => {
+  const { params: { podId, userId } } = req;
 
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
-  if (!user) return status.missingBodyParam(res, 'user');
 
-  const { notAMember, podName } = await podsData.removeActiveMember(podId, user);
-  if (notAMember) return status.doesNotExist(res, 'Member', user.name, `pod [${podName}]`);
+  const { notAMember, podName } = await podsData.removeActiveMember(podId, userId);
+  if (notAMember) return status.doesNotExist(res, 'Member', userId, `pod [${podName}]`);
 
   return status.success(res, {
-    message: `Removed active member [${user.name}] from pod [${podName}]`
+    message: `Removed active member [${userId}] from pod [${podName}]`
   });
 });
 

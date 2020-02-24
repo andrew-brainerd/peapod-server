@@ -85,7 +85,7 @@ const deletePod = async podId => {
 
 const addMember = async (podId, user) => {
   const { name } = await getPod(podId);
-  log.cool(`Adding member ${userName} (${userId}) to pod ${name} (${podId})`);
+  log.cool(`Adding member ${user.name} (${user.id}) to pod ${name} (${podId})`);
   return new Promise((resolve, reject) => {
     data.db && data.db.collection(PODS_COLLECTION)
       .updateOne(
@@ -177,7 +177,7 @@ const addActiveMember = async (podId, user) => {
     data.db && data.db.collection(PODS_COLLECTION)
       .updateOne(
         { _id: ObjectId(podId) },
-        { $addToSet: { activeMembers: user } },
+        { $addToSet: { activeMembers: userId } },
         (err, { matchedCount, modifiedCount }) => {
           if (err) reject(err);
           const alreadyExists = matchedCount === 1 && modifiedCount === 0;
@@ -187,15 +187,14 @@ const addActiveMember = async (podId, user) => {
   });
 };
 
-const removeActiveMember = async (podId, user) => {
+const removeActiveMember = async (podId, userId) => {
   const { name } = await getPod(podId);
-  const { display_name: userName, id: userId } = user;
-  log.cool(`Removing active member ${userName} (${userId}) from pod ${name} (${podId})`);
+  log.cool(`Removing active member ${userId} from pod ${name} (${podId})`);
   return new Promise((resolve, reject) => {
     data.db && data.db.collection(PODS_COLLECTION)
       .updateOne(
         { _id: ObjectId(podId) },
-        { $pull: { activeMembers: user } },
+        { $pull: { activeMembers: userId } },
         (err, { matchedCount, modifiedCount }) => {
           if (err) reject(err);
           const notAMember = matchedCount === 1 && modifiedCount === 0;

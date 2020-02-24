@@ -158,10 +158,7 @@ spotify.put('/transferPlayback', async (req, res) => {
 spotify.put('/play', async (req, res) => {
   const { query: { accessToken }, body: { contextUri, uris, offset, position } } = req;
 
-  console.log('Body: %o', req.body);
-
   if (!accessToken) return status.missingQueryParam(res, 'accessToken');
-  // if (!contextUri && !uris) return status.missingBodyParam(res, 'contextUri or uris');
   if (!!contextUri && !!uris) return status.serverError(res, null, 'Provide only one: contextUri or uris');
   spotifyApi.setAccessToken(accessToken);
 
@@ -179,8 +176,6 @@ spotify.put('/play', async (req, res) => {
   if (!!position) {
     options.position_ms = position;
   }
-
-  console.log(options);
 
   spotifyApi.play(options)
     .then(data => {
