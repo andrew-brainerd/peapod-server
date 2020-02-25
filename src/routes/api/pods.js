@@ -128,6 +128,7 @@ pods.patch('/:podId/activeMembers', async (req, res) => {
   if (!user) return status.missingBodyParam(res, 'user');
 
   const { podName } = await podsData.addActiveMember(podId, user);
+  await podsData.addMember(podId, user);
 
   return status.success(res, {
     message: `Added active user [${user.name}] to pod [${podName}]`
