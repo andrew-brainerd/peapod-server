@@ -179,12 +179,11 @@ spotify.put('/play', async (req, res) => {
 
   spotifyApi.play(options)
     .then(data => {
-      log.cool(`Playing %o`, uris);
-      status.success(res, { ...data.body })
+      return status.success(res, { ...data.body })
     })
     .catch(err => {
       log.error('Failed to play', err);
-      status.serverError(res, err);
+      return status.serverError(res, err);
     });
 });
 

@@ -108,6 +108,20 @@ pods.patch('/:podId/queue', async (req, res) => {
   });
 });
 
+pods.delete('/:podId/queue', async (req, res) => {
+  const { params: { podId }, body: { track } } = req;
+
+  if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
+  if (!track) return status.missingBodyParam(res, 'track');
+
+  const { notAMember, podName } = await podsData.removeTrackFromPlayQueue(podId, track);
+  if (notAMember) return status.doesNotExist(res, 'Member', track.name, `pod [${podName}]`);
+
+  return status.success(res, {
+    message: `Removed track [${track.name}] from pod [${podName}]`
+  });
+});
+
 pods.patch('/:podId/history', async (req, res) => {
   const { params: { podId }, body: { track } } = req;
 
