@@ -7,7 +7,7 @@ const { PODS_COLLECTION } = require('../constants/collections');
 const createPod = (name, createdBy) => {
   return new Promise((resolve, reject) => {
     data.db && data.db.collection(PODS_COLLECTION)
-      .insertOne({ name, createdBy, members: [createdBy] }, (err, { ops }) => {
+      .insertOne({ name, createdBy }, (err, { ops }) => {
         const newPod = ops[0];
         log.success(`Created new pod ${newPod.name} (${newPod._id})`);
         sendSms(`Created new pod ${newPod.name}`, '9897210902');
@@ -135,6 +135,23 @@ const addTrackToPlayQueue = async (podId, track) => {
   });
 };
 
+const removeTrackFromPlayQueue = async (podId, track) => {
+  const { name } = await getPod(podId);
+  log.info(`Removing track ${track.name} from pod ${name} (${podId})`);
+  return new Promise((resolve, reject) => {
+    data.db && data.db.collection(PODS_COLLECTION)
+      .updateOne(
+        { _id: ObjectId(podId) },
+        { $pull: { queue: { id: track.id } } },
+        (err, { matchedCount, modifiedCount }) => {
+          if (err) reject(err);
+          const doesNotExist = matchedCount === 1 && modifiedCount === 0;
+          resolve({ doesNotExist, podName: name });
+        }
+      );
+  });
+};
+
 const addTrackToPlayHistory = async (podId, track) => {
   const { name } = await getPod(podId);
   log.info(`Adding track ${track.name} to pod ${name} (${podId}) play history`);
@@ -147,23 +164,6 @@ const addTrackToPlayHistory = async (podId, track) => {
           if (err) reject(err);
           const alreadyExists = matchedCount === 1 && modifiedCount === 0;
           resolve({ alreadyExists, podName: name });
-        }
-      );
-  });
-};
-
-const removeTrack = async (podId, track) => {
-  const { name } = await getPod(podId);
-  log.info(`Removing track ${track} from pod ${name} (${podId})`);
-  return new Promise((resolve, reject) => {
-    data.db && data.db.collection(PODS_COLLECTION)
-      .updateOne(
-        { _id: ObjectId(podId) },
-        { $pull: { tracks: track } },
-        (err, { matchedCount, modifiedCount }) => {
-          if (err) reject(err);
-          const doesNotExist = matchedCount === 1 && modifiedCount === 0;
-          resolve({ doesNotExist, podName: name });
         }
       );
   });
@@ -215,7 +215,7 @@ module.exports = {
   removeMember,
   addTrackToPlayQueue,
   addTrackToPlayHistory,
-  removeTrack,
+  removeTrackFromPlayQueue,
   addActiveMember,
   removeActiveMember
 };

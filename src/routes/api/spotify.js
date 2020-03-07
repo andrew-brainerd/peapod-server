@@ -179,12 +179,11 @@ spotify.put('/play', async (req, res) => {
 
   spotifyApi.play(options)
     .then(data => {
-      log.cool(`Playing %o`, uris);
-      status.success(res, { ...data.body })
-    }) 
+      return status.success(res, { ...data.body })
+    })
     .catch(err => {
       log.error('Failed to play', err);
-      status.serverError(res, err);
+      return status.serverError(res, err);
     });
 });
 
@@ -199,6 +198,42 @@ spotify.put('/pause', async (req, res) => {
   spotifyApi.pause()
     .then(data => status.success(res, { ...data.body }))
     .catch(err => log.error('Failed to play', err));
+});
+
+spotify.post('/playlist', async (req, res) => {
+  const { query: { accessToken }, body: { userId, name } } = req;
+
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  spotifyApi.setAccessToken(accessToken);
+
+  log.cool(`Creating Playlist [${name}] for user [${userId}]`);
+
+  spotifyApi.createPlaylist(userId, name)
+    .then(data => status.success(res, { ...data.body }))
+    .catch(err => log.error('Failed to create playlist', err));
+});
+
+spotify.put('/playlists', async (req, res) => {
+  const { query: { accessToken }, body: { id, tracks } } = req;
+
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  spotifyApi.setAccessToken(accessToken);
+
+  spotifyApi.addTracksToPlaylist(id, tracks)
+    .then(data => status.success(res, { ...data.body }))
+    .catch(err => log.error('Failed to add tracks to playlist', err));
+});
+
+spotify.get('/playlists/:userId', async (req, res) => {
+  const { query: { accessToken }, params: { userId } } = req;
+
+  if (!accessToken) return status.missingQueryParam(res, 'accessToken');
+  if (!userId) return status.missingQueryParam(res, 'userId');
+  spotifyApi.setAccessToken(accessToken);
+
+  spotifyApi.getUserPlaylists(userId)
+    .then(data => status.success(res, { ...data.body }))
+    .catch(err => log.error('Failed to add tracks to playlist', err));
 });
 
 module.exports = spotify;
