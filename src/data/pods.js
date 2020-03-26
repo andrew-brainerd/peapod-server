@@ -4,16 +4,12 @@ const log = require('../utils/log');
 const { messageTypes, sendSms } = require('../utils/messaging');
 const { PODS_COLLECTION } = require('../constants/collections');
 
-const createPod = (name, createdBy) => {
-  return new Promise((resolve, reject) => {
-    data.db && data.db.collection(PODS_COLLECTION)
-      .insertOne({ name, createdBy }, (err, { ops }) => {
-        const newPod = ops[0];
-        log.success(`Created new pod ${newPod.name} (${newPod._id})`);
-        sendSms(`Created new pod ${newPod.name}`, '9897210902');
-        err ? reject(err) : resolve(newPod);
-      });
-  });
+const createPod = async (name, createdBy) => {
+  const newPod = await data.insertOne(PODS_COLLECTION, { name, createdBy });
+
+  log.success(`Created new pod ${newPod.name} (${newPod._id})`);
+
+  sendSms(`Created new pod ${newPod.name}`, '9897210902');
 };
 
 const sendInviteCode = async (podId, messageType, to) => {
