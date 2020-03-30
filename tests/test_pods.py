@@ -24,6 +24,24 @@ def test_create_pod_success():
   assert body['name'] == 'Test Pod'
   assert body['createdBy']['id'] == '12345'
 
+def test_create_pod_missing_name():
+  url = f'{baseUrl}/api/pods'
+
+  pod = {
+    'createdBy': {
+      'id': '12345',
+      'name': 'Test User',
+      'email': 'test@peapod.app'
+    }
+  }
+
+  response = requests.request('POST', url, data=json.dumps(pod), headers=headers)
+  body = response.json()
+
+  assert response.status_code == 400
+  assert 'ValidationError' in body['message']
+  assert '["name" is required]' in body['message']
+
 def test_get_user_pods_success():
   url = f'{baseUrl}/api/pods?userId=12345'
 
