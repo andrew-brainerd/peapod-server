@@ -43,6 +43,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/', require('./routes'));
+app.use('/api', require('./api'));
 
 app.listen(port, () => log.info(`Listening on port ${port}`));

@@ -1,15 +1,15 @@
 const isEmpty = require('lodash/isEmpty');
 const spotify = require('express').Router();
-const { spotifyApi } = require('../../utils/spotify');
-const { formatUrlParams } = require('../../utils/url');
+const { spotifyApi } = require('../utils/spotify');
+const { formatUrlParams } = require('../utils/url');
 const {
   AUTH_URL,
   SCOPES,
   SEARCH_TYPES,
   DEFAULT_SEARCH_OPTIONS
-} = require('../../constants/spotify');
-const status = require('../../constants/statusMessages');
-const log = require('../../utils/log');
+} = require('../constants/spotify');
+const status = require('../constants/statusMessages');
+const log = require('../utils/log');
 
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 const redirectUri = process.env.SPOTIFY_REDIRECT_URI;

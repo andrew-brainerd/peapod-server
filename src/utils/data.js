@@ -103,6 +103,46 @@ const updateOne = async (collectionName, id, update) => {
   })
 };
 
+const deleteOne = async (collectionName, id) => {
+  return new Promise((resolve, reject) => {
+    db.collection(collectionName)
+      .deleteOne(
+        { _id: ObjectId(id) },
+        err => err ? reject(err) : resolve(id)
+      )
+  });
+};
+
+const addToSet = async (collectionName, id, addition) => {
+  return new Promise((resolve, reject) => {
+    db.collection(collectionName)
+      .updateOne(
+        { _id: ObjectId(id) },
+        { $addToSet: addition },
+        (err, { matchedCount, modifiedCount }) => {
+          if (err) reject(err);
+          const alreadyExists = matchedCount === 1 && modifiedCount === 0;
+          resolve({ alreadyExists, id });
+        }
+      );
+  });
+};
+
+const pullFromSet = async (collectionName, id, removal) => {
+  return new Promise((resolve, reject) => {
+    db.collection(collectionName)
+      .updateOne(
+        { _id: ObjectId(id) },
+        { $pull: removal },
+        (err, { matchedCount, modifiedCount }) => {
+          if (err) reject(err);
+          const notAMember = matchedCount === 1 && modifiedCount === 0;
+          resolve({ notAMember, id });
+        }
+      );
+  });
+};
+
 module.exports = {
   db,
   calculateTotalPages,
@@ -110,5 +150,8 @@ module.exports = {
   getSome,
   getById,
   getByProperty,
-  updateOne
+  updateOne,
+  deleteOne,
+  addToSet,
+  pullFromSet
 };

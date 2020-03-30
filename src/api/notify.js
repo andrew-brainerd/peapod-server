@@ -1,6 +1,6 @@
 const notify = require('express').Router();
 const fetch = require('node-fetch')
-const status = require('../../constants/statusMessages');
+const status = require('../constants/statusMessages');
 
 const DISCORD_URL = 'https://discordapp.com/api'
 const PEAPOD_CHANNEL = '678429686480502787/fmd1n7lXPNOPNnvR6cUK5gxRBXo-B4HnCGQRliYYU4wPqo9lgTWYOtSrjfKXl6jfDJtf';
