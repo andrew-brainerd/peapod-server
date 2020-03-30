@@ -1,5 +1,4 @@
 const data = require('../utils/data');
-const ObjectId = require('mongodb').ObjectId;
 const log = require('../utils/log');
 const { messageTypes, sendSms } = require('../utils/messaging');
 const { PODS_COLLECTION } = require('../constants/collections');
@@ -40,137 +39,57 @@ const getPods = async (page, size, userId) =>
 
 const getPod = async podId => await data.getById(PODS_COLLECTION, podId);
 
-const deletePod = async podId => {
-  const pod = await getPod(podId);
-  return new Promise((resolve, reject) => {
-    if (!pod) return reject({ error: `Pod [${podId}] does not exist` });
-    data.db && data.db.collection(PODS_COLLECTION)
-      .deleteOne(
-        { _id: ObjectId(podId) },
-        err => err ? reject(err) : resolve({ name: pod.name })
-      )
-  });
-};
+const deletePod = async podId => await data.deleteOne(PODS_COLLECTION, podId);
 
 const addMember = async (podId, user) => {
   const { name } = await getPod(podId);
   log.cool(`Adding member ${user.name} (${user.id}) to pod ${name} (${podId})`);
-  return new Promise((resolve, reject) => {
-    data.db && data.db.collection(PODS_COLLECTION)
-      .updateOne(
-        { _id: ObjectId(podId) },
-        { $addToSet: { members: user } },
-        (err, { matchedCount, modifiedCount }) => {
-          if (err) reject(err);
-          const alreadyExists = matchedCount === 1 && modifiedCount === 0;
-          resolve({ alreadyExists, podName: name });
-        }
-      );
-  });
+  
+  return await data.addToSet(PODS_COLLECTION, podId, { members: user });
 };
 
 const removeMember = async (podId, user) => {
   const { name } = await getPod(podId);
   const { display_name: userName, id: userId } = user;
   log.cool(`Removing member ${userName} (${userId}) from pod ${name} (${podId})`);
-  return new Promise((resolve, reject) => {
-    data.db && data.db.collection(PODS_COLLECTION)
-      .updateOne(
-        { _id: ObjectId(podId) },
-        { $pull: { members: user } },
-        (err, { matchedCount, modifiedCount }) => {
-          if (err) reject(err);
-          const notAMember = matchedCount === 1 && modifiedCount === 0;
-          resolve({ notAMember, podName: name });
-        }
-      );
-  });
+  
+  return await data.pullFromSet(PODS_COLLECTION, podId, { members: user });
 };
 
 const addTrackToPlayQueue = async (podId, track) => {
   const { name } = await getPod(podId);
-  log.info(`Adding track ${track.name} to pod ${name} (${podId}) play queue`);
-  return new Promise((resolve, reject) => {
-    data.db && data.db.collection(PODS_COLLECTION)
-      .updateOne(
-        { _id: ObjectId(podId) },
-        { $addToSet: { queue: track } },
-        (err, { matchedCount, modifiedCount }) => {
-          if (err) reject(err);
-          const alreadyExists = matchedCount === 1 && modifiedCount === 0;
-          resolve({ alreadyExists, podName: name });
-        }
-      );
-  });
+  log.cool(`Adding track ${track.name} to pod ${name} (${podId}) play queue`);
+
+  return await data.addToSet(PODS_COLLECTION, podId, { queue: track });
 };
 
 const removeTrackFromPlayQueue = async (podId, track) => {
   const { name } = await getPod(podId);
-  log.info(`Removing track ${track.name} from pod ${name} (${podId})`);
-  return new Promise((resolve, reject) => {
-    data.db && data.db.collection(PODS_COLLECTION)
-      .updateOne(
-        { _id: ObjectId(podId) },
-        { $pull: { queue: { id: track.id } } },
-        (err, { matchedCount, modifiedCount }) => {
-          if (err) reject(err);
-          const doesNotExist = matchedCount === 1 && modifiedCount === 0;
-          resolve({ doesNotExist, podName: name });
-        }
-      );
-  });
+  log.cool(`Removing track ${track.name} from pod ${name} (${podId})`);
+  
+  return await data.pullFromSet(PODS_COLLECTION, podId, { queue: { id: track.id } });
 };
 
 const addTrackToPlayHistory = async (podId, track) => {
   const { name } = await getPod(podId);
-  log.info(`Adding track ${track.name} to pod ${name} (${podId}) play history`);
-  return new Promise((resolve, reject) => {
-    data.db && data.db.collection(PODS_COLLECTION)
-      .updateOne(
-        { _id: ObjectId(podId) },
-        { $addToSet: { history: track } },
-        (err, { matchedCount, modifiedCount }) => {
-          if (err) reject(err);
-          const alreadyExists = matchedCount === 1 && modifiedCount === 0;
-          resolve({ alreadyExists, podName: name });
-        }
-      );
-  });
+  log.cool(`Adding track ${track.name} to pod ${name} (${podId}) play history`);
+  
+  return await data.addToSet(PODS_COLLECTION, podId, { history: track });
 };
 
 const addActiveMember = async (podId, user) => {
   const { name } = await getPod(podId);
   const { display_name: userName, id: userId } = user;
   log.cool(`Adding active member ${userName} (${userId}) to pod ${name} (${podId})`);
-  return new Promise((resolve, reject) => {
-    data.db && data.db.collection(PODS_COLLECTION)
-      .updateOne(
-        { _id: ObjectId(podId) },
-        { $addToSet: { activeMembers: userId } },
-        (err, { matchedCount, modifiedCount }) => {
-          if (err) reject(err);
-          const alreadyExists = matchedCount === 1 && modifiedCount === 0;
-          resolve({ alreadyExists, podName: name });
-        }
-      );
-  });
+
+  return await data.addToSet(PODS_COLLECTION, podId, { activeMembers: userId });
 };
 
 const removeActiveMember = async (podId, userId) => {
   const { name } = await getPod(podId);
   log.cool(`Removing active member ${userId} from pod ${name} (${podId})`);
-  return new Promise((resolve, reject) => {
-    data.db && data.db.collection(PODS_COLLECTION)
-      .updateOne(
-        { _id: ObjectId(podId) },
-        { $pull: { activeMembers: userId } },
-        (err, { matchedCount, modifiedCount }) => {
-          if (err) reject(err);
-          const notAMember = matchedCount === 1 && modifiedCount === 0;
-          resolve({ notAMember, podName: name });
-        }
-      );
-  });
+
+  return data.pullFromSet(PODS_COLLECTION, podId, { activeMembers: userId });
 };
 
 module.exports = {
