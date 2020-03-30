@@ -1,8 +1,8 @@
 const sync = require('express').Router();
-const { pusher } = require('../../utils/notifications');
-const { isDefined } = require('../../utils/url');
-const status = require('../../constants/statusMessages');
-const { NOW_PLAYING } = require('../../constants/pusher');
+const { pusher } = require('../utils/notifications');
+const { isDefined } = require('../utils/url');
+const status = require('../constants/statusMessages');
+const { NOW_PLAYING } = require('../constants/pusher');
 
 sync.post('/', async (req, res) => {
   const { query: { podId }, body: { nowPlaying } } = req;
