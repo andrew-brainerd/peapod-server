@@ -10,8 +10,6 @@ const createPod = async (name, createdBy) => {
 
   log.success(`Created new pod ${newPod.name} (${newPod._id})`);
 
-  sendSms(`Created new pod ${newPod.name}`, '9897210902');
-
   return newPod;
 };
 
@@ -65,7 +63,7 @@ const addTrackToPlayQueue = async (podId, track) => {
 
 const removeTrackFromPlayQueue = async (podId, track) => {
   const { name } = await getPod(podId);
-  log.cool(`Removing track ${track.name} from pod ${name} (${podId})`);
+  log.cool(`Removing track ${track.name} from pod ${name} (${podId}) play queue`);
   
   return await data.pullFromSet(PODS_COLLECTION, podId, { queue: { id: track.id } });
 };
