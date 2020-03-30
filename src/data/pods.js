@@ -4,16 +4,16 @@ const log = require('../utils/log');
 const { messageTypes, sendSms } = require('../utils/messaging');
 const { PODS_COLLECTION } = require('../constants/collections');
 
-const createPod = (name, createdBy) => {
-  return new Promise((resolve, reject) => {
-    data.db && data.db.collection(PODS_COLLECTION)
-      .insertOne({ name, createdBy }, (err, { ops }) => {
-        const newPod = ops[0];
-        log.success(`Created new pod ${newPod.name} (${newPod._id})`);
-        sendSms(`Created new pod ${newPod.name}`, '9897210902');
-        err ? reject(err) : resolve(newPod);
-      });
-  });
+const createPod = async (name, createdBy) => {
+  const newPod = await data.insertOne(PODS_COLLECTION,
+    { name, createdBy, members: [createdBy] }
+  );
+
+  log.success(`Created new pod ${newPod.name} (${newPod._id})`);
+
+  sendSms(`Created new pod ${newPod.name}`, '9897210902');
+
+  return newPod;
 };
 
 const sendInviteCode = async (podId, messageType, to) => {
@@ -28,48 +28,17 @@ const sendInviteCode = async (podId, messageType, to) => {
         resolve({ message: `Sent invite link via ${messageType} for pod ${name} (${podId}) to ${to}` });
       } catch (err) {
         const errorMessage = `Invalid messageType provided: [${messageType}]`;
-      console.error(errorMessage);
-      reject(errorMessage);
+        console.error(errorMessage);
+        reject(errorMessage);
       }
     }
   });
 };
 
-const getPods = async (page, size, userId) => {
-  const collection = data.db && data.db.collection(PODS_COLLECTION);
-  const totalItems = await collection.countDocuments({});
-  const totalPages = data.calculateTotalPages(totalItems, size);
+const getPods = async (page, size, userId) =>
+  await data.getSome(PODS_COLLECTION, page, size, 'members.id', userId);
 
-  return new Promise((resolve, reject) => {
-    const query = userId ? { 'members.id': userId } : {};
-    collection && collection
-      .find(query)
-      .skip(size * (page - 1))
-      .limit(size)
-      .sort({ $natural: -1 })
-      .toArray((err, items) => {
-        err ? reject(err) : resolve({
-          items,
-          totalItems,
-          totalPages
-        });
-      });
-  });
-};
-
-const getPod = podId => {
-  return new Promise((resolve, reject) => {
-    data.db && data.db.collection(PODS_COLLECTION)
-      .find({ _id: ObjectId(podId) })
-      .toArray((err, result) =>
-        err ? reject(err) : resolve(result[0])
-      );
-  });
-};
-
-const updatePod = (podId, updates) => {
-  log.info(`Update Pod ${podId}: ${updates}`);
-};
+const getPod = async podId => await data.getById(PODS_COLLECTION, podId);
 
 const deletePod = async podId => {
   const pod = await getPod(podId);
@@ -209,7 +178,6 @@ module.exports = {
   sendInviteCode,
   getPods,
   getPod,
-  updatePod,
   deletePod,
   addMember,
   removeMember,

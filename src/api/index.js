@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const version = process.env.API_VERSION;
+const { version } = require('../../package.json');
 
 router.get('/', (req, res) => {
   res.send({

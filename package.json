@@ -30,11 +30,12 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "yarn && nodemon src/server.js",
-    "lint:js": "eslint src/"
+    "lint": "eslint src/",
+    "test": "cd tests && pipenv install && pipenv run pytest"
   },
   "husky": {
     "hooks": {
-      "pre-push": "yarn lint:js"
+      "pre-push": "yarn lint"
     }
   }
 }
