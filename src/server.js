@@ -8,22 +8,6 @@ const app = express();
 
 app.use(express.json());
 
-// Auth code
-// const jwt = require('express-jwt');
-// const jwks = require('jwks-rsa');
-// const jwtCheck = jwt({
-//   secret: jwks.expressJwtSecret({
-//     cache: true,
-//     rateLimit: true,
-//     jwksRequestsPerMinute: 5,
-//     jwksUri: 'https://peapod-dev.auth0.com/.well-known/jwks.json'
-//   }),
-//   audience: 'https://peapodbb-server.herokuapp.com/api',
-//   issuer: 'https://peapod-dev.auth0.com/',
-//   algorithms: ['RS256']
-// });
-// app.use(jwtCheck);
-
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, PUT, PATCH, POST, DELETE");
