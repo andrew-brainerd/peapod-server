@@ -141,11 +141,11 @@ pods.patch('/:podId/activeMembers', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!user) return status.missingBodyParam(res, 'user');
 
-  const { podName } = await podsData.addActiveMember(podId, user);
+  await podsData.addActiveMember(podId, user);
   await podsData.addMember(podId, user);
 
   return status.success(res, {
-    message: `Added active user [${user.name}] to pod [${podName}]`
+    message: `Added active user [${user.name}] to pod [${podId}]`
   });
 });
 

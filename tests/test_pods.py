@@ -166,5 +166,29 @@ def test_add_history_track_success():
   pod = get_pod(created_pod['_id'])
   assert track['track'] in pod['history']
 
+def test_add_active_member_success():
+  create_response = create_pod()
+  created_pod = create_response.json()
+
+  url = f'{baseUrl}/api/pods/{created_pod["_id"]}/activeMembers'
+
+  user = {
+    'user': {
+      'id': '2345',
+      'name': 'Test Member',
+      'email': 'member@peapod.app'
+    }
+  }
+
+  response = requests.request('PATCH', url, data=json.dumps(user), headers=headers)
+  body = response.json()
+
+  assert response.status_code == 200
+  assert f'Added active user [{user["user"]["name"]}]' in body['message']
+  assert f'pod [{created_pod["_id"]}]' in body['message']
+
+  pod = get_pod(created_pod['_id'])
+  assert user['user']['id'] in pod['activeMembers']
+
 def test_delete_pod_by_id_success():
   cleanup_created_pods()
