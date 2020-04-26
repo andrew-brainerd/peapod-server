@@ -128,10 +128,10 @@ pods.patch('/:podId/history', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!track) return status.missingBodyParam(res, 'track');
 
-  const { podName } = await podsData.addTrackToPlayHistory(podId, track);
+  await podsData.addTrackToPlayHistory(podId, track);
 
   return status.success(res, {
-    message: `Added track [${track.name}] to pod [${podName}] play history`
+    message: `Added track [${track.name}] to pod [${podId}] play history`
   });
 });
 

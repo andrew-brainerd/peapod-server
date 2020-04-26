@@ -143,5 +143,28 @@ def test_remove_queue_track_success():
   pod = get_pod(created_pod['_id'])
   assert track['track'] not in pod['queue']
 
+def test_add_history_track_success():
+  create_response = create_pod()
+  created_pod = create_response.json()
+
+  url = f'{baseUrl}/api/pods/{created_pod["_id"]}/history'
+
+  track = {
+    'track': {
+      'artist': 'Tame Impala',
+      'name': 'Breathe Deeper'
+    }
+  }
+
+  response = requests.request('PATCH', url, data=json.dumps(track), headers=headers)
+  body = response.json()
+
+  assert response.status_code == 200
+  assert f'Added track [{track["track"]["name"]}]' in body['message']
+  assert f'pod [{created_pod["_id"]}]' in body['message']
+
+  pod = get_pod(created_pod['_id'])
+  assert track['track'] in pod['history']
+
 def test_delete_pod_by_id_success():
   cleanup_created_pods()
