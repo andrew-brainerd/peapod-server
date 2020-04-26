@@ -37,7 +37,10 @@ const getPods = async (page, size, userId) =>
 
 const getPod = async podId => await data.getById(PODS_COLLECTION, podId);
 
-const deletePod = async podId => await data.deleteOne(PODS_COLLECTION, podId);
+const deletePod = async podId => {
+  log.info(`Deleting pod (${podId})`);
+  return await data.deleteOne(PODS_COLLECTION, podId);
+};
 
 const addMember = async (podId, user) => {
   const { name } = await getPod(podId);

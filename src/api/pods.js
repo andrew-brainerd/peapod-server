@@ -46,8 +46,9 @@ pods.delete('/:podId', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
 
   try {
-    const { name } = await podsData.deletePod(podId);
+    const shit = await podsData.deletePod(podId);
     return status.success(res, { message: `Deleted pod [${name}]` });
+    return status.success(res, { message: `Deleted pod [${podId}]` });
   } catch (err) {
     return status.doesNotExist(res, 'Pod', podId);
   }
@@ -71,12 +72,12 @@ pods.patch('/:podId/members', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!user) return status.missingBodyParam(res, 'user');
 
-  const { alreadyExists, podName } = await podsData.addMember(podId, user);
+  const { alreadyExists } = await podsData.addMember(podId, user);
   if (alreadyExists)
-    return status.alreadyExists(res, 'User', 'name', user.name, `pod [${podName}]`);
+    return status.alreadyExists(res, 'User', 'name', user.name, `pod [${podId}]`);
 
   return status.success(res, {
-    message: `Added user [${user.name}] to pod [${podName}]`
+    message: `Added user [${user.name}] to pod [${podId}]`
   });
 });
 
