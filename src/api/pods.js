@@ -100,11 +100,11 @@ pods.patch('/:podId/queue', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!track) return status.missingBodyParam(res, 'track');
 
-  const { alreadyExists, podName } = await podsData.addTrackToPlayQueue(podId, track);
-  if (alreadyExists) return status.alreadyExists(res, 'Track', 'name', podName);
+  const { alreadyExists } = await podsData.addTrackToPlayQueue(podId, track);
+  if (alreadyExists) return status.alreadyExists(res, 'Track', 'name', podId);
 
   return status.success(res, {
-    message: `Added track [${track.name}] to pod [${podName}] play history`
+    message: `Added track [${track.name}] to pod [${podId}] play queue`
   });
 });
 
@@ -114,11 +114,11 @@ pods.delete('/:podId/queue', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!track) return status.missingBodyParam(res, 'track');
 
-  const { notAMember, podName } = await podsData.removeTrackFromPlayQueue(podId, track);
-  if (notAMember) return status.doesNotExist(res, 'Member', track.name, `pod [${podName}]`);
+  const { notAMember } = await podsData.removeTrackFromPlayQueue(podId, track);
+  if (notAMember) return status.doesNotExist(res, 'Member', track.name, `pod [${podId}]`);
 
   return status.success(res, {
-    message: `Removed track [${track.name}] from pod [${podName}]`
+    message: `Removed track [${track.name}] from pod [${podId}]`
   });
 });
 
