@@ -23,21 +23,22 @@ def create_pod():
   pod = response.json()
 
   assert response.status_code == 201
-  print(f'Created pod {pod["_id"]}')
 
   created_pods.append(pod['_id'])
   
   return response
 
-def cleanup_created_pods():
-  print(created_pods)
+def get_pod(pod_id):
+  url = f'{baseUrl}/api/pods/{pod_id}'
+  response = requests.request('GET', url)
+  assert response.status_code == 200
+  return response.json()
 
+def cleanup_created_pods():
   for pod_id in created_pods:
     url = f'{baseUrl}/api/pods/{pod_id}'
     response = requests.request('DELETE', url)
     body = response.json()
-
-    print(pod_id)
 
     if (response.status_code == 200):
       assert f'Deleted pod [{pod_id}]' in body['message']
