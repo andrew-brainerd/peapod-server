@@ -46,8 +46,8 @@ pods.delete('/:podId', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
 
   try {
-    const { name } = await podsData.deletePod(podId);
-    return status.success(res, { message: `Deleted pod [${name}]` });
+    await podsData.deletePod(podId);
+    return status.success(res, { message: `Deleted pod [${podId}]` });
   } catch (err) {
     return status.doesNotExist(res, 'Pod', podId);
   }
@@ -71,12 +71,12 @@ pods.patch('/:podId/members', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!user) return status.missingBodyParam(res, 'user');
 
-  const { alreadyExists, podName } = await podsData.addMember(podId, user);
+  const { alreadyExists } = await podsData.addMember(podId, user);
   if (alreadyExists)
-    return status.alreadyExists(res, 'User', 'name', user.name, `pod [${podName}]`);
+    return status.alreadyExists(res, 'User', 'name', user.name, `pod [${podId}]`);
 
   return status.success(res, {
-    message: `Added user [${user.name}] to pod [${podName}]`
+    message: `Added user [${user.name}] to pod [${podId}]`
   });
 });
 
@@ -86,11 +86,11 @@ pods.delete('/:podId/members', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!user) return status.missingBodyParam(res, 'user');
 
-  const { notAMember, podName } = await podsData.removeMember(podId, user);
-  if (notAMember) return status.doesNotExist(res, 'Member', user.name, `pod [${podName}]`);
+  const { notAMember } = await podsData.removeMember(podId, user);
+  if (notAMember) return status.doesNotExist(res, 'Member', user.name, `pod [${podId}]`);
 
   return status.success(res, {
-    message: `Removed member [${user.name}] from pod [${podName}]`
+    message: `Removed member [${user.name}] from pod [${podId}]`
   });
 });
 
@@ -100,11 +100,11 @@ pods.patch('/:podId/queue', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!track) return status.missingBodyParam(res, 'track');
 
-  const { alreadyExists, podName } = await podsData.addTrackToPlayQueue(podId, track);
-  if (alreadyExists) return status.alreadyExists(res, 'Track', 'name', podName);
+  const { alreadyExists } = await podsData.addTrackToPlayQueue(podId, track);
+  if (alreadyExists) return status.alreadyExists(res, 'Track', 'name', podId);
 
   return status.success(res, {
-    message: `Added track [${track.name}] to pod [${podName}] play history`
+    message: `Added track [${track.name}] to pod [${podId}] play queue`
   });
 });
 
@@ -114,11 +114,11 @@ pods.delete('/:podId/queue', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!track) return status.missingBodyParam(res, 'track');
 
-  const { notAMember, podName } = await podsData.removeTrackFromPlayQueue(podId, track);
-  if (notAMember) return status.doesNotExist(res, 'Member', track.name, `pod [${podName}]`);
+  const { notAMember } = await podsData.removeTrackFromPlayQueue(podId, track);
+  if (notAMember) return status.doesNotExist(res, 'Member', track.name, `pod [${podId}]`);
 
   return status.success(res, {
-    message: `Removed track [${track.name}] from pod [${podName}]`
+    message: `Removed track [${track.name}] from pod [${podId}]`
   });
 });
 
@@ -128,10 +128,10 @@ pods.patch('/:podId/history', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!track) return status.missingBodyParam(res, 'track');
 
-  const { podName } = await podsData.addTrackToPlayHistory(podId, track);
+  await podsData.addTrackToPlayHistory(podId, track);
 
   return status.success(res, {
-    message: `Added track [${track.name}] to pod [${podName}] play history`
+    message: `Added track [${track.name}] to pod [${podId}] play history`
   });
 });
 
@@ -141,11 +141,11 @@ pods.patch('/:podId/activeMembers', async (req, res) => {
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
   if (!user) return status.missingBodyParam(res, 'user');
 
-  const { podName } = await podsData.addActiveMember(podId, user);
+  await podsData.addActiveMember(podId, user);
   await podsData.addMember(podId, user);
 
   return status.success(res, {
-    message: `Added active user [${user.name}] to pod [${podName}]`
+    message: `Added active user [${user.name}] to pod [${podId}]`
   });
 });
 

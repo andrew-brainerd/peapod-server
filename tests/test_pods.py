@@ -1,28 +1,14 @@
 import requests
 import json
-
-baseUrl = 'http://localhost:5000'
-
-headers = {'Content-Type': 'application/json' } 
+from utils import baseUrl, headers, create_pod, get_pod, cleanup_created_pods
 
 def test_create_pod_success():
-  url = f'{baseUrl}/api/pods'
-
-  pod = {
-    'name': 'Test Pod',
-    'createdBy': {
-      'id': '12345',
-      'name': 'Test User',
-      'email': 'test@peapod.app'
-    }
-  }
-
-  response = requests.request('POST', url, data=json.dumps(pod), headers=headers)
-  body = response.json()
+  response = create_pod()
+  pod = response.json()
 
   assert response.status_code == 201
-  assert body['name'] == 'Test Pod'
-  assert body['createdBy']['id'] == '12345'
+  assert pod['name'] == 'Test Pod'
+  assert pod['createdBy']['id'] == '12345'
 
 def test_create_pod_missing_name():
   url = f'{baseUrl}/api/pods'
@@ -39,8 +25,7 @@ def test_create_pod_missing_name():
   body = response.json()
 
   assert response.status_code == 400
-  assert 'ValidationError' in body['message']
-  assert '["name" is required]' in body['message']
+  assert 'Missing body param: [name]' in body['message']
 
 def test_get_user_pods_success():
   url = f'{baseUrl}/api/pods?userId=12345'
@@ -48,34 +33,162 @@ def test_get_user_pods_success():
   response = requests.request('GET', url)
   body = response.json()
 
-  print(body)
-
   assert response.status_code == 200
   assert len(body['items']) > 0
 
 def test_get_pod_by_id_success():
-  url = f'{baseUrl}/api/pods'
+  create_response = create_pod()
+  created_pod = create_response.json()
+  
+  pod = get_pod(created_pod["_id"])
 
-  pod = {
-    'name': 'Test Pod',
-    'createdBy': {
-      'id': '12345',
-      'name': 'Test User',
-      'email': 'test@peapod.app'
+  assert pod['name'] == 'Test Pod'
+  assert pod['createdBy']['id'] == '12345'
+
+def test_add_pod_member_success():
+  create_response = create_pod()
+  created_pod = create_response.json()
+
+  url = f'{baseUrl}/api/pods/{created_pod["_id"]}/members'
+
+  user = {
+    'user': {
+      'id': '2345',
+      'name': 'Test Member',
+      'email': 'member@peapod.app'
     }
   }
 
-  createResponse = requests.request('POST', url, data=json.dumps(pod), headers=headers)
-  createBody = createResponse.json()
-  createdId = createBody['_id']
-
-  print(createBody)
-
-  url = f'{baseUrl}/api/pods/{createdId}'
-
-  response = requests.request('GET', url)
+  response = requests.request('PATCH', url, data=json.dumps(user), headers=headers)
   body = response.json()
 
   assert response.status_code == 200
-  assert body['name'] == 'Test Pod'
-  assert body['createdBy']['id'] == '12345'
+  assert f'Added user [{user["user"]["name"]}]' in body['message']
+  assert f'pod [{created_pod["_id"]}]' in body['message']
+
+  pod = get_pod(created_pod['_id'])
+  assert user['user'] in pod['members']
+
+def test_remove_pod_member_success():
+  create_response = create_pod()
+  created_pod = create_response.json()
+
+  url = f'{baseUrl}/api/pods/{created_pod["_id"]}/members'
+
+  user = {
+    'user': {
+      'id': '2345',
+      'name': 'Test Member',
+      'email': 'member@peapod.app'
+    }
+  }
+
+  response = requests.request('PATCH', url, data=json.dumps(user), headers=headers)
+  assert response.status_code == 200
+
+  pod = get_pod(created_pod['_id'])
+  assert user['user'] in pod['members']
+
+  response = requests.request('DELETE', url, data=json.dumps(user), headers=headers)
+  assert response.status_code == 200
+
+  pod = get_pod(created_pod['_id'])
+  assert user['user'] not in pod['members']
+
+def test_add_queue_track_success():
+  create_response = create_pod()
+  created_pod = create_response.json()
+
+  url = f'{baseUrl}/api/pods/{created_pod["_id"]}/queue'
+
+  track = {
+    'track': {
+      'artist': 'Tame Impala',
+      'name': 'Breathe Deeper'
+    }
+  }
+
+  response = requests.request('PATCH', url, data=json.dumps(track), headers=headers)
+  body = response.json()
+
+  assert response.status_code == 200
+  assert f'Added track [{track["track"]["name"]}]' in body['message']
+  assert f'pod [{created_pod["_id"]}]' in body['message']
+
+  pod = get_pod(created_pod['_id'])
+  assert track['track'] in pod['queue']
+
+def test_remove_queue_track_success():
+  create_response = create_pod()
+  created_pod = create_response.json()
+
+  url = f'{baseUrl}/api/pods/{created_pod["_id"]}/queue'
+
+  track = {
+    'track': {
+      'artist': 'Tame Impala',
+      'name': 'Breathe Deeper'
+    }
+  }
+
+  response = requests.request('PATCH', url, data=json.dumps(track), headers=headers)
+  assert response.status_code == 200
+
+  pod = get_pod(created_pod['_id'])
+  assert track['track'] in pod['queue']
+
+  response = requests.request('DELETE', url, data=json.dumps(track), headers=headers)
+  assert response.status_code == 200
+
+  pod = get_pod(created_pod['_id'])
+  assert track['track'] not in pod['queue']
+
+def test_add_history_track_success():
+  create_response = create_pod()
+  created_pod = create_response.json()
+
+  url = f'{baseUrl}/api/pods/{created_pod["_id"]}/history'
+
+  track = {
+    'track': {
+      'artist': 'Tame Impala',
+      'name': 'Breathe Deeper'
+    }
+  }
+
+  response = requests.request('PATCH', url, data=json.dumps(track), headers=headers)
+  body = response.json()
+
+  assert response.status_code == 200
+  assert f'Added track [{track["track"]["name"]}]' in body['message']
+  assert f'pod [{created_pod["_id"]}]' in body['message']
+
+  pod = get_pod(created_pod['_id'])
+  assert track['track'] in pod['history']
+
+def test_add_active_member_success():
+  create_response = create_pod()
+  created_pod = create_response.json()
+
+  url = f'{baseUrl}/api/pods/{created_pod["_id"]}/activeMembers'
+
+  user = {
+    'user': {
+      'id': '2345',
+      'name': 'Test Member',
+      'email': 'member@peapod.app'
+    }
+  }
+
+  response = requests.request('PATCH', url, data=json.dumps(user), headers=headers)
+  body = response.json()
+
+  assert response.status_code == 200
+  assert f'Added active user [{user["user"]["name"]}]' in body['message']
+  assert f'pod [{created_pod["_id"]}]' in body['message']
+
+  pod = get_pod(created_pod['_id'])
+  assert user['user']['id'] in pod['activeMembers']
+
+def test_delete_pod_by_id_success():
+  cleanup_created_pods()
