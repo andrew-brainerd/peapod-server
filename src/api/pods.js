@@ -1,16 +1,17 @@
 const pods = require('express').Router();
 const podsData = require('../data/pods');
 const status = require('../constants/statusMessages');
+const { pusher } = require('../utils/notifications');
 const { isDefined } = require('../utils/url');
+const { MEMBER_ADDED, LAUNCH_GAME } = require('../constants/pusher');
 
 pods.post('/', async (req, res) => {
-  const { body: { name, createdBy } } = req;
+  const { body: { createdBy } } = req;
 
-  if (!name) return status.missingBodyParam(res, 'name');
   if (!createdBy) return status.missingBodyParam(res, 'createdBy');
 
-  const newPod = await podsData.createPod(name, createdBy);
-  if (!newPod) return status.serverError(res, 'Failed', `Failed to create pod [${name}]`);
+  const newPod = await podsData.createPod(createdBy);
+  if (!newPod) return status.serverError(res, 'Failed', `Failed to create pod`);
 
   return status.created(res, { ...newPod });
 });
@@ -74,6 +75,8 @@ pods.patch('/:podId/members', async (req, res) => {
   const { alreadyExists } = await podsData.addMember(podId, user);
   if (alreadyExists)
     return status.alreadyExists(res, 'User', 'name', user.name, `pod [${podId}]`);
+
+  pusher.trigger(podId, MEMBER_ADDED, {});
 
   return status.success(res, {
     message: `Added user [${user.name}] to pod [${podId}]`
@@ -154,11 +157,23 @@ pods.post('/:podId/activeMembers/:userId', async (req, res) => {
 
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
 
-  const { notAMember, podName } = await podsData.removeActiveMember(podId, userId);
-  if (notAMember) return status.doesNotExist(res, 'Member', userId, `pod [${podName}]`);
+  const { notAMember } = await podsData.removeActiveMember(podId, userId);
+  if (notAMember) return status.doesNotExist(res, 'Member', userId, `pod [${podId}]`);
 
   return status.success(res, {
-    message: `Removed active member [${userId}] from pod [${podName}]`
+    message: `Removed active member [${userId}] from pod [${podId}]`
+  });
+});
+
+pods.put('/:podId/launch', async (req, res) => {
+  const { params: { podId } } = req;
+
+  if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
+
+  pusher.trigger(podId, LAUNCH_GAME, {});
+
+  return status.success(res, {
+    message: `Launching Pod ${podId}`
   });
 });
 
