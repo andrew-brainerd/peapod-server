@@ -170,11 +170,10 @@ pods.put('/:podId/launch', async (req, res) => {
 
   if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
 
+  await podsData.startNextRound(podId);
   pusher.trigger(podId, LAUNCH_GAME, {});
 
-  return status.success(res, {
-    message: `Launching Pod ${podId}`
-  });
+  return status.success(res, { message: `Launching Pod ${podId}` });
 });
 
 module.exports = pods;

@@ -89,12 +89,10 @@ const updateOne = async (collectionName, id, update) => {
       db.collection(collectionName)
         .updateOne(
           { _id: ObjectId(id) },
-          { $addToSet: update },
+          { $set: update },
           (err, result) => {
-            const { matchedCount, modifiedCount } = result || {};
             if (err) reject(err);
-            const alreadyExists = matchedCount === 1 && modifiedCount === 0;
-            resolve({ alreadyExists, id });
+            resolve({ result, id });
           }
         );
     } catch (err) {

@@ -6,7 +6,8 @@ const { PODS_COLLECTION } = require('../constants/collections');
 const createPod = async (createdBy) => {
   const newPod = await data.insertOne(PODS_COLLECTION, {
     createdBy,
-    members: [createdBy]
+    members: [createdBy],
+    currentRound: 0
   });
 
   log.success(`Created new pod ${newPod._id}`);
@@ -78,6 +79,11 @@ const removeActiveMember = async (podId, userId) => {
   return data.pullFromSet(PODS_COLLECTION, podId, { activeMembers: userId });
 };
 
+const startNextRound = async podId => {
+  const { currentRound } = await getPod(podId);
+  return data.updateOne(PODS_COLLECTION, podId, { currentRound: currentRound + 1 });
+};
+
 module.exports = {
   createPod,
   sendInviteCode,
@@ -90,5 +96,6 @@ module.exports = {
   addTrackToPlayHistory,
   removeTrackFromPlayQueue,
   addActiveMember,
-  removeActiveMember
+  removeActiveMember,
+  startNextRound
 };
