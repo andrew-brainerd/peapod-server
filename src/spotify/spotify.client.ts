@@ -1,0 +1,7 @@
+import SpotifyWebApi from 'spotify-web-api-node';
+
+const clientId = process.env.SPOTIFY_CLIENT_ID;
+const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
+
+export const spotifyApi = new SpotifyWebApi({ clientId, clientSecret, redirectUri });
