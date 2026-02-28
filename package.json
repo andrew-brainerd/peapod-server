@@ -29,13 +29,13 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "dev": "yarn && nodemon src/server.js",
+    "dev": "pnpm install && nodemon src/server.js",
     "lint": "eslint src/",
     "test": "cd tests && pipenv install && pipenv run pytest"
   },
   "husky": {
     "hooks": {
-      "pre-push": "yarn lint"
+      "pre-push": "pnpm lint"
     }
   }
 }
