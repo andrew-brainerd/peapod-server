@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/projects//**)",
+      "Read(//c/projects/**)",
+      "Bash(chmod:*)",
+      "Bash(pnpm i:*)",
+      "Bash(git config:*)",
+      "Bash(sh /c/projects/peapod-server/.githooks/install.sh)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(pnpm run:*)",
+      "Bash(cd:*)"
+    ]
+  }
+}
