@@ -13,11 +13,11 @@ export const SCOPES = [
   'playlist-read-collaborative',
   'playlist-modify-public',
   'playlist-read-private',
-  'playlist-modify-private',
+  'playlist-modify-private'
 ].join(' ');
 
 export const SEARCH_TYPES = ['album', 'artist', 'playlist', 'track'];
 
 export const DEFAULT_SEARCH_OPTIONS = {
-  limit: 20,
+  limit: 20
 };

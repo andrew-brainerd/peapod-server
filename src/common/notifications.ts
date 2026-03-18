@@ -9,5 +9,5 @@ export const pusher = new Pusher({
   key: appKey,
   secret: appSecret,
   cluster: 'us2',
-  useTLS: true,
+  useTLS: true
 });

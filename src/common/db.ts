@@ -26,8 +26,7 @@ export const disconnectFromMongoDB = async (): Promise<void> => {
   }
 };
 
-const calculateTotalPages = (items: number, size: number): number =>
-  items > size ? Math.ceil(items / size) : 1;
+const calculateTotalPages = (items: number, size: number): number => (items > size ? Math.ceil(items / size) : 1);
 
 await connectToMongoDB();
 
@@ -41,7 +40,7 @@ export const getSome = async (
   page: number,
   size: number,
   identifier?: string,
-  idValue?: string,
+  idValue?: string
 ): Promise<{ items: Document[]; totalItems: number; totalPages: number }> => {
   const collection = db.collection(collectionName);
   const query: Filter<Document> = identifier && idValue ? { [identifier]: idValue } : {};
@@ -65,7 +64,7 @@ export const getById = async (collectionName: string, id: string): Promise<Docum
 export const getByProperty = async (
   collectionName: string,
   property: string,
-  value: unknown,
+  value: unknown
 ): Promise<Document | null> => {
   return db.collection(collectionName).findOne({ [property]: value });
 };
@@ -73,11 +72,9 @@ export const getByProperty = async (
 export const updateOne = async (
   collectionName: string,
   id: string,
-  update: Document,
+  update: Document
 ): Promise<{ alreadyExists: boolean; id: string }> => {
-  const result = await db
-    .collection(collectionName)
-    .updateOne({ _id: new ObjectId(id) }, { $addToSet: update });
+  const result = await db.collection(collectionName).updateOne({ _id: new ObjectId(id) }, { $addToSet: update });
   const alreadyExists = result.matchedCount === 1 && result.modifiedCount === 0;
   return { alreadyExists, id };
 };
@@ -90,11 +87,9 @@ export const deleteOne = async (collectionName: string, id: string): Promise<str
 export const addToSet = async (
   collectionName: string,
   id: string,
-  addition: Document,
+  addition: Document
 ): Promise<{ alreadyExists: boolean; id: string }> => {
-  const result = await db
-    .collection(collectionName)
-    .updateOne({ _id: new ObjectId(id) }, { $addToSet: addition });
+  const result = await db.collection(collectionName).updateOne({ _id: new ObjectId(id) }, { $addToSet: addition });
   const alreadyExists = result.matchedCount === 1 && result.modifiedCount === 0;
   return { alreadyExists, id };
 };
@@ -102,7 +97,7 @@ export const addToSet = async (
 export const pullFromSet = async (
   collectionName: string,
   id: string,
-  removal: Document,
+  removal: Document
 ): Promise<{ notAMember: boolean; id: string }> => {
   const result = await db
     .collection(collectionName)

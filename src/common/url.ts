@@ -1,7 +1,7 @@
 export const formatUrlParams = (options: Record<string, string | number>): string => {
   if (!options || Object.keys(options).length === 0) return '';
   return `?${Object.keys(options)
-    .map((o) => `${o}=${options[o]}`)
+    .map(o => `${o}=${options[o]}`)
     .join('&')}`;
 };
 

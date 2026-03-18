@@ -9,7 +9,9 @@
       "Bash(sh /c/projects/peapod-server/.githooks/install.sh)",
       "Bash(echo \"exit: $?\")",
       "Bash(pnpm run:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm format:*)"
     ]
   }
 }

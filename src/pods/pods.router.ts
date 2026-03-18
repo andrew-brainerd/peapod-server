@@ -9,7 +9,7 @@ const pods = Router();
 
 pods.post('/', async (req: Request, res: Response) => {
   const {
-    body: { createdBy },
+    body: { createdBy }
   } = req;
 
   if (!createdBy) return status.missingBodyParam(res, 'createdBy');
@@ -25,18 +25,14 @@ pods.get('/', async (req: Request, res: Response) => {
   const page = parseInt(pageNum as string) || 1;
   const size = parseInt(pageSize as string) || 50;
 
-  const { items, totalItems, totalPages } = await podsData.getPods(
-    page,
-    size,
-    userId as string | undefined,
-  );
+  const { items, totalItems, totalPages } = await podsData.getPods(page, size, userId as string | undefined);
 
   return status.success(res, {
     items,
     pageNum: page,
     pageSize: size,
     totalItems,
-    totalPages,
+    totalPages
   });
 });
 
@@ -88,7 +84,7 @@ pods.patch('/:podId/members', async (req: Request<{ podId: string }>, res: Respo
   pusher.trigger(podId, MEMBER_ADDED, {});
 
   return status.success(res, {
-    message: `Added user [${user.name}] to pod [${podId}]`,
+    message: `Added user [${user.name}] to pod [${podId}]`
   });
 });
 
@@ -103,7 +99,7 @@ pods.delete('/:podId/members', async (req: Request<{ podId: string }>, res: Resp
   if (notAMember) return status.doesNotExist(res, 'Member', user.name, `pod [${podId}]`);
 
   return status.success(res, {
-    message: `Removed member [${user.name}] from pod [${podId}]`,
+    message: `Removed member [${user.name}] from pod [${podId}]`
   });
 });
 
@@ -118,7 +114,7 @@ pods.patch('/:podId/queue', async (req: Request<{ podId: string }>, res: Respons
   if (alreadyExists) return status.alreadyExists(res, 'Track', 'name', track.name);
 
   return status.success(res, {
-    message: `Added track [${track.name}] to pod [${podId}] play queue`,
+    message: `Added track [${track.name}] to pod [${podId}] play queue`
   });
 });
 
@@ -133,7 +129,7 @@ pods.delete('/:podId/queue', async (req: Request<{ podId: string }>, res: Respon
   if (notAMember) return status.doesNotExist(res, 'Track', track.name, `pod [${podId}]`);
 
   return status.success(res, {
-    message: `Removed track [${track.name}] from pod [${podId}]`,
+    message: `Removed track [${track.name}] from pod [${podId}]`
   });
 });
 
@@ -147,7 +143,7 @@ pods.patch('/:podId/history', async (req: Request<{ podId: string }>, res: Respo
   await podsData.addTrackToPlayHistory(podId, track);
 
   return status.success(res, {
-    message: `Added track [${track.name}] to pod [${podId}] play history`,
+    message: `Added track [${track.name}] to pod [${podId}] play history`
   });
 });
 
@@ -162,25 +158,22 @@ pods.patch('/:podId/activeMembers', async (req: Request<{ podId: string }>, res:
   await podsData.addMember(podId, user);
 
   return status.success(res, {
-    message: `Added active user [${user.name}] to pod [${podId}]`,
+    message: `Added active user [${user.name}] to pod [${podId}]`
   });
 });
 
-pods.post(
-  '/:podId/activeMembers/:userId',
-  async (req: Request<{ podId: string; userId: string }>, res: Response) => {
-    const { podId, userId } = req.params;
+pods.post('/:podId/activeMembers/:userId', async (req: Request<{ podId: string; userId: string }>, res: Response) => {
+  const { podId, userId } = req.params;
 
-    if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
+  if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
 
-    const { notAMember } = await podsData.removeActiveMember(podId, userId);
-    if (notAMember) return status.doesNotExist(res, 'Member', userId, `pod [${podId}]`);
+  const { notAMember } = await podsData.removeActiveMember(podId, userId);
+  if (notAMember) return status.doesNotExist(res, 'Member', userId, `pod [${podId}]`);
 
-    return status.success(res, {
-      message: `Removed active member [${userId}] from pod [${podId}]`,
-    });
-  },
-);
+  return status.success(res, {
+    message: `Removed active member [${userId}] from pod [${podId}]`
+  });
+});
 
 pods.put('/:podId/launch', async (req: Request<{ podId: string }>, res: Response) => {
   const { podId } = req.params;
@@ -190,7 +183,7 @@ pods.put('/:podId/launch', async (req: Request<{ podId: string }>, res: Response
   pusher.trigger(podId, LAUNCH_GAME, {});
 
   return status.success(res, {
-    message: `Launching Pod ${podId}`,
+    message: `Launching Pod ${podId}`
   });
 });
 

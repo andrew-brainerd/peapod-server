@@ -24,8 +24,8 @@ app.use(helmet());
 app.use(
   cors({
     origin: process.env.PEAPOD_UI_URL || '*',
-    methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  }),
+    methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE']
+  })
 );
 app.use(express.json());
 app.use(
@@ -33,8 +33,8 @@ app.use(
     windowMs: 15 * 60 * 1000,
     limit: 100,
     standardHeaders: 'draft-8',
-    legacyHeaders: false,
-  }),
+    legacyHeaders: false
+  })
 );
 
 app.use('/api', router);

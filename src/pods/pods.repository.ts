@@ -19,7 +19,7 @@ interface Track {
 export const createPod = async (createdBy: User) => {
   const newPod = await data.insertOne(PODS_COLLECTION, {
     createdBy,
-    members: [createdBy],
+    members: [createdBy]
   });
 
   log.success(`Created new pod ${newPod._id}`);

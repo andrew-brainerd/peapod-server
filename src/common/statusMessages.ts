@@ -1,12 +1,5 @@
 import type { Response } from 'express';
-import {
-  SUCCESS,
-  CREATED,
-  BAD_REQUEST,
-  DOES_NOT_EXIST,
-  CONFLICT,
-  SERVER_ERROR,
-} from './responseCodes.js';
+import { SUCCESS, CREATED, BAD_REQUEST, DOES_NOT_EXIST, CONFLICT, SERVER_ERROR } from './responseCodes.js';
 
 export const success = (res: Response, body: unknown) => res.status(SUCCESS).send(body);
 
@@ -20,18 +13,12 @@ export const missingBodyParam = (res: Response, param: string) =>
 
 export const doesNotExist = (res: Response, type: string, property: string, container?: string) =>
   res.status(DOES_NOT_EXIST).send({
-    message: `${type} [${property}] does not exist${container ? ` in ${container}` : ''}`,
+    message: `${type} [${property}] does not exist${container ? ` in ${container}` : ''}`
   });
 
-export const alreadyExists = (
-  res: Response,
-  type: string,
-  property: string,
-  value: string,
-  container?: string,
-) =>
+export const alreadyExists = (res: Response, type: string, property: string, value: string, container?: string) =>
   res.status(CONFLICT).send({
-    message: `${type} with ${property} [${value}] already exists${container ? ` in ${container}` : ''}`,
+    message: `${type} with ${property} [${value}] already exists${container ? ` in ${container}` : ''}`
   });
 
 export const serverError = (res: Response, error: unknown, message?: string) =>

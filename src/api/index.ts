@@ -11,7 +11,7 @@ const router = Router();
 
 router.get('/', (_req, res) => {
   res.send({
-    message: `Welcome to the Peapod API v${version}!`,
+    message: `Welcome to the Peapod API v${version}!`
   });
 });
 

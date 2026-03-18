@@ -26,7 +26,7 @@ spotify.get('/auth', async (_req: Request, res: Response) => {
     response_type: 'code',
     client_id: clientId!,
     scope: encodeURIComponent(SCOPES),
-    redirect_uri: encodeURIComponent(redirectUri),
+    redirect_uri: encodeURIComponent(redirectUri)
   });
 
   res.send({ authUrl: `${AUTH_URL}${params}` });
@@ -34,7 +34,7 @@ spotify.get('/auth', async (_req: Request, res: Response) => {
 
 spotify.post('/auth', async (req: Request, res: Response) => {
   const {
-    body: { accessToken, refreshToken },
+    body: { accessToken, refreshToken }
   } = req;
 
   spotifyApi.setAccessToken(accessToken);
@@ -54,13 +54,13 @@ spotify.get('/callback', async (req: Request, res: Response) => {
 
   try {
     const {
-      body: { access_token, expires_in, refresh_token },
+      body: { access_token, expires_in, refresh_token }
     } = await spotifyApi.authorizationCodeGrant(code as string);
 
     const params = formatUrlParams({
       access_token,
       expires_in,
-      refresh_token,
+      refresh_token
     });
 
     res.redirect(`${frontendUrl}/spotify/auth${params}`);
@@ -108,8 +108,7 @@ spotify.post('/search', extractSpotifyToken, async (req: Request, res: Response)
   if (!searchText) return status.missingBodyParam(res, 'searchText');
 
   const invalidTypes = (types || []).filter((type: string) => !SEARCH_TYPES.includes(type));
-  if (invalidTypes.length > 0)
-    return status.serverError(res, null, `Invalid types provided: ${invalidTypes}`);
+  if (invalidTypes.length > 0) return status.serverError(res, null, `Invalid types provided: ${invalidTypes}`);
 
   const searchTypes = types || SEARCH_TYPES;
   const searchOptions = options || DEFAULT_SEARCH_OPTIONS;
@@ -170,8 +169,7 @@ spotify.put('/transferPlayback', extractSpotifyToken, async (req: Request, res: 
 spotify.put('/play', extractSpotifyToken, async (req: Request, res: Response) => {
   const { contextUri, uris, offset, position } = req.body;
 
-  if (contextUri && uris)
-    return status.serverError(res, null, 'Provide only one: contextUri or uris');
+  if (contextUri && uris) return status.serverError(res, null, 'Provide only one: contextUri or uris');
 
   const options: Record<string, unknown> = {};
 
@@ -235,22 +233,18 @@ spotify.put('/playlists', extractSpotifyToken, async (req: Request, res: Respons
   }
 });
 
-spotify.get(
-  '/playlists/:userId',
-  extractSpotifyToken,
-  async (req: Request<{ userId: string }>, res: Response) => {
-    const { userId } = req.params;
+spotify.get('/playlists/:userId', extractSpotifyToken, async (req: Request<{ userId: string }>, res: Response) => {
+  const { userId } = req.params;
 
-    if (!userId) return status.missingQueryParam(res, 'userId');
+  if (!userId) return status.missingQueryParam(res, 'userId');
 
-    try {
-      const data = await spotifyApi.getUserPlaylists(userId);
-      status.success(res, { ...data.body });
-    } catch (err) {
-      log.error('Failed to fetch user playlists', err as Record<string, unknown>);
-      status.serverError(res, err, 'Failed to fetch user playlists');
-    }
-  },
-);
+  try {
+    const data = await spotifyApi.getUserPlaylists(userId);
+    status.success(res, { ...data.body });
+  } catch (err) {
+    log.error('Failed to fetch user playlists', err as Record<string, unknown>);
+    status.serverError(res, err, 'Failed to fetch user playlists');
+  }
+});
 
 export default spotify;
