@@ -39,14 +39,15 @@
     "vitest": "^4.0.18"
   },
   "scripts": {
-    "start": "node --import tsx src/server.ts",
-    "dev": "concurrently \"tsx --watch src/server.ts\" \"local-ssl-proxy --source 3443 --target 3001\"",
     "build": "tsc",
-    "lint": "eslint src/",
+    "clean": "rm -rf node_modules",
+    "dev": "concurrently \"tsx --watch src/server.ts\" \"local-ssl-proxy --source 3443 --target 3001\"",
     "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint src/",
+    "prepare": "husky",
+    "start": "node --import tsx src/server.ts",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "prepare": "husky"
+    "test:watch": "vitest"
   },
   "lint-staged": {
     "src/**/*.ts": [
