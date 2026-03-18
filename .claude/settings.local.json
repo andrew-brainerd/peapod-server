@@ -11,7 +11,10 @@
       "Bash(pnpm run:*)",
       "Bash(cd:*)",
       "Bash(pnpm add:*)",
-      "Bash(pnpm format:*)"
+      "Bash(pnpm format:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm exec:*)"
     ]
   }
 }

@@ -2,6 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from 'express'
 import { spotifyApi } from './spotify.client.js';
 import { formatUrlParams } from '../common/url.js';
 import { AUTH_URL, SCOPES, SEARCH_TYPES, DEFAULT_SEARCH_OPTIONS } from './spotify.constants.js';
+import { UNAUTHORIZED } from '../common/responseCodes.js';
 import * as status from '../common/statusMessages.js';
 import * as log from '../common/logger.js';
 
@@ -14,7 +15,7 @@ const frontendUrl = process.env.PEAPOD_UI_URL;
 const extractSpotifyToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
-    return status.missingQueryParam(res, 'Authorization header (Bearer token)');
+    return res.status(UNAUTHORIZED).send({ message: 'Unauthorized request' });
   }
   const token = authHeader.slice(7);
   spotifyApi.setAccessToken(token);
