@@ -58,6 +58,15 @@ pods.delete('/:podId', async (req: Request<{ podId: string }>, res: Response) =>
   }
 });
 
+pods.get('/:podId/invite', async (req: Request<{ podId: string }>, res: Response) => {
+  const { podId } = req.params;
+
+  if (!isDefined(podId)) return status.missingQueryParam(res, 'podId');
+
+  const inviteLink = podsData.getInviteLink(podId);
+  return status.success(res, { inviteLink });
+});
+
 pods.post('/:podId/invite', async (req: Request<{ podId: string }>, res: Response) => {
   const { podId } = req.params;
   const { messageType, to } = req.body;

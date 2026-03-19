@@ -27,9 +27,13 @@ export const createPod = async (createdBy: User) => {
   return newPod;
 };
 
-export const sendInviteCode = async (podId: string, messageType: string, to: string) => {
+export const getInviteLink = (podId: string): string => {
   const frontendUrl = process.env.PEAPOD_UI_URL;
-  const inviteLink = `${frontendUrl}/pods/${podId}`;
+  return `${frontendUrl}/invite/${podId}`;
+};
+
+export const sendInviteCode = async (podId: string, messageType: string, to: string) => {
+  const inviteLink = getInviteLink(podId);
 
   if (messageType === messageTypes.SMS) {
     sendSms(`You've been invited to a Peapod: ${inviteLink}`, to);
