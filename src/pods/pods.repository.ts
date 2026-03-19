@@ -1,6 +1,6 @@
 import * as data from '../common/db.js';
 import * as log from '../common/logger.js';
-import { messageTypes, sendSms } from '../common/messaging.js';
+import { messageTypes, sendSms, sendEmail } from '../common/messaging.js';
 import { PODS_COLLECTION } from '../common/collections.js';
 
 interface User {
@@ -37,6 +37,13 @@ export const sendInviteCode = async (podId: string, messageType: string, to: str
 
   if (messageType === messageTypes.SMS) {
     sendSms(`You've been invited to a Peapod: ${inviteLink}`, to);
+    return { message: `Sent invite link via ${messageType} for pod ${podId} to ${to}` };
+  }
+
+  if (messageType === messageTypes.EMAIL) {
+    const subject = "You've been invited to a Peapod!";
+    const body = `<p>You've been invited to join a pod on Peapod!</p><p><a href="${inviteLink}">Click here to join</a></p>`;
+    sendEmail(subject, body, to);
     return { message: `Sent invite link via ${messageType} for pod ${podId} to ${to}` };
   }
 
